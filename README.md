@@ -1,1 +1,1 @@
-# PocketYoga
+# YogaPartner
