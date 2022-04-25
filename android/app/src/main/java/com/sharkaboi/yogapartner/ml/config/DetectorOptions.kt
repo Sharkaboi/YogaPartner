@@ -78,4 +78,9 @@ object DetectorOptions {
     fun shouldShowReps(): Boolean {
         return false
     }
+
+    @JvmStatic
+    fun shouldShowOutLine(): Boolean {
+        return true
+    }
 }
