@@ -6,7 +6,7 @@ import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
 
 object DetectorOptions {
-    private val useAccurate = false
+    private val useAccurate = true
     private val preferGPU = true
 
     @JvmStatic
