@@ -1,15 +1,10 @@
-
-
 package com.sharkaboi.yogapartner.ml.processor
 
 import android.app.ActivityManager
 import android.content.Context
 import android.graphics.Bitmap
-import android.os.Build.VERSION_CODES
 import android.os.SystemClock
-import android.widget.Toast
 import androidx.annotation.GuardedBy
-import androidx.annotation.RequiresApi
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
 import com.google.android.gms.tasks.OnSuccessListener
@@ -23,6 +18,7 @@ import com.google.android.odml.image.MlImage
 import com.google.mlkit.common.MlKitException
 import com.google.mlkit.vision.common.InputImage
 import com.sharkaboi.yogapartner.common.extensions.addOnSuccessListener
+import com.sharkaboi.yogapartner.common.extensions.showToast
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
 import com.sharkaboi.yogapartner.ml.interfaces.VisionImageProcessor
 import com.sharkaboi.yogapartner.ml.models.FrameMetadata
@@ -34,8 +30,7 @@ import timber.log.Timber
 import java.lang.Math.max
 import java.lang.Math.min
 import java.nio.ByteBuffer
-import java.util.Timer
-import java.util.TimerTask
+import java.util.*
 
 /**
  * Abstract base class for ML Kit frame processors. Subclasses need to implement {@link
@@ -45,357 +40,361 @@ import java.util.TimerTask
  * @param <T> The type of the detected feature.
  */
 abstract class VisionProcessorBase<T>(context: Context) :
-  VisionImageProcessor {
-  private var activityManager: ActivityManager =
-    context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-  private val fpsTimer = Timer()
-  private val executor =
-    ScopedExecutor(
-      TaskExecutors.MAIN_THREAD
-    )
+    VisionImageProcessor {
+    private var activityManager: ActivityManager =
+        context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    private val fpsTimer = Timer()
+    private val executor =
+        ScopedExecutor(
+            TaskExecutors.MAIN_THREAD
+        )
 
-  // Whether this processor is already shut down
-  private var isShutdown = false
+    // Whether this processor is already shut down
+    private var isShutdown = false
 
-  // Used to calculate latency, running in the same thread, no sync needed.
-  private var numRuns = 0
-  private var totalFrameMs = 0L
-  private var maxFrameMs = 0L
-  private var minFrameMs = Long.MAX_VALUE
-  private var totalDetectorMs = 0L
-  private var maxDetectorMs = 0L
-  private var minDetectorMs = Long.MAX_VALUE
+    // Used to calculate latency, running in the same thread, no sync needed.
+    private var numRuns = 0
+    private var totalFrameMs = 0L
+    private var maxFrameMs = 0L
+    private var minFrameMs = Long.MAX_VALUE
+    private var totalDetectorMs = 0L
+    private var maxDetectorMs = 0L
+    private var minDetectorMs = Long.MAX_VALUE
 
-  // Frame count that have been processed so far in an one second interval to calculate FPS.
-  private var frameProcessedInOneSecondInterval = 0
-  private var framesPerSecond = 0
+    // Frame count that have been processed so far in an one second interval to calculate FPS.
+    private var frameProcessedInOneSecondInterval = 0
+    private var framesPerSecond = 0
 
-  // To keep the latest images and its metadata.
-  @GuardedBy("this") private var latestImage: ByteBuffer? = null
-  @GuardedBy("this") private var latestImageMetaData: FrameMetadata? = null
-  // To keep the images and metadata in process.
-  @GuardedBy("this") private var processingImage: ByteBuffer? = null
-  @GuardedBy("this") private var processingMetaData: FrameMetadata? = null
+    // To keep the latest images and its metadata.
+    @GuardedBy("this")
+    private var latestImage: ByteBuffer? = null
+    @GuardedBy("this")
+    private var latestImageMetaData: FrameMetadata? = null
 
-  init {
-    fpsTimer.scheduleAtFixedRate(
-      object : TimerTask() {
-        override fun run() {
-          framesPerSecond = frameProcessedInOneSecondInterval
-          frameProcessedInOneSecondInterval = 0
-        }
-      },
-      0,
-      1000
-    )
-  }
+    // To keep the images and metadata in process.
+    @GuardedBy("this")
+    private var processingImage: ByteBuffer? = null
+    @GuardedBy("this")
+    private var processingMetaData: FrameMetadata? = null
 
-  // -----------------Code for processing single still image----------------------------------------
-  override fun processBitmap(bitmap: Bitmap?, graphicOverlay: GraphicOverlay) {
-    val frameStartMs = SystemClock.elapsedRealtime()
-
-    if (isMlImageEnabled(graphicOverlay.context)) {
-      val mlImage = BitmapMlImageBuilder(bitmap!!).build()
-      requestDetectInImage(
-        mlImage,
-        graphicOverlay,
-        /* originalCameraImage= */ null,
-        /* shouldShowFps= */ false,
-        frameStartMs
-      )
-      mlImage.close()
-      return
+    init {
+        fpsTimer.scheduleAtFixedRate(
+            object : TimerTask() {
+                override fun run() {
+                    framesPerSecond = frameProcessedInOneSecondInterval
+                    frameProcessedInOneSecondInterval = 0
+                }
+            },
+            0,
+            1000
+        )
     }
 
-    requestDetectInImage(
-      InputImage.fromBitmap(bitmap!!, 0),
-      graphicOverlay,
-      /* originalCameraImage= */ null,
-      /* shouldShowFps= */ false,
-      frameStartMs
-    )
-  }
+    // -----------------Code for processing single still image----------------------------------------
+    override fun processBitmap(bitmap: Bitmap?, graphicOverlay: GraphicOverlay) {
+        val frameStartMs = SystemClock.elapsedRealtime()
 
-  // -----------------Code for processing live preview frame from Camera1 API-----------------------
-  @Synchronized
-  override fun processByteBuffer(
-      data: ByteBuffer?,
-      frameMetadata: FrameMetadata?,
-      graphicOverlay: GraphicOverlay
-  ) {
-    latestImage = data
-    latestImageMetaData = frameMetadata
-    if (processingImage == null && processingMetaData == null) {
-      processLatestImage(graphicOverlay)
-    }
-  }
-
-  @Synchronized
-  private fun processLatestImage(graphicOverlay: GraphicOverlay) {
-    processingImage = latestImage
-    processingMetaData = latestImageMetaData
-    latestImage = null
-    latestImageMetaData = null
-    if (processingImage != null && processingMetaData != null && !isShutdown) {
-      processImage(processingImage!!, processingMetaData!!, graphicOverlay)
-    }
-  }
-
-  private fun processImage(
-      data: ByteBuffer,
-      frameMetadata: FrameMetadata,
-      graphicOverlay: GraphicOverlay
-  ) {
-    val frameStartMs = SystemClock.elapsedRealtime()
-    // If live viewport is on (that is the underneath surface view takes care of the camera preview
-    // drawing), skip the unnecessary bitmap creation that used for the manual preview drawing.
-    val bitmap =
-      if (DetectorOptions.isCameraLiveViewportEnabled()) null
-      else BitmapUtils.getBitmap(data, frameMetadata)
-
-    if (isMlImageEnabled(graphicOverlay.context)) {
-      val mlImage =
-        ByteBufferMlImageBuilder(
-            data,
-            frameMetadata.width,
-            frameMetadata.height,
-            MlImage.IMAGE_FORMAT_NV21
-          )
-          .setRotation(frameMetadata.rotation)
-          .build()
-      requestDetectInImage(mlImage, graphicOverlay, bitmap, /* shouldShowFps= */ true, frameStartMs)
-        .addOnSuccessListener(executor) { processLatestImage(graphicOverlay) }
-
-      // This is optional. Java Garbage collection can also close it eventually.
-      mlImage.close()
-      return
-    }
-
-    requestDetectInImage(
-      InputImage.fromByteBuffer(
-        data,
-        frameMetadata.width,
-        frameMetadata.height,
-        frameMetadata.rotation,
-        InputImage.IMAGE_FORMAT_NV21
-      ),
-      graphicOverlay,
-      bitmap,
-      /* shouldShowFps= */ true,
-      frameStartMs
-    )
-      .addOnSuccessListener(executor) { processLatestImage(graphicOverlay) }
-  }
-
-  // -----------------Code for processing live preview frame from CameraX API-----------------------
-  @ExperimentalGetImage
-  override fun processImageProxy(image: ImageProxy, graphicOverlay: GraphicOverlay) {
-    val frameStartMs = SystemClock.elapsedRealtime()
-    if (isShutdown) {
-      image.close()
-      return
-    }
-    var bitmap: Bitmap? = null
-    if (!DetectorOptions.isCameraLiveViewportEnabled()) {
-      bitmap = BitmapUtils.getBitmap(image)
-    }
-
-    if (isMlImageEnabled(graphicOverlay.context)) {
-      val mlImage =
-        MediaMlImageBuilder(image.image!!).setRotation(image.imageInfo.rotationDegrees).build()
-      requestDetectInImage(
-        mlImage,
-        graphicOverlay,
-        /* originalCameraImage= */ bitmap,
-        /* shouldShowFps= */ true,
-        frameStartMs
-      )
-        // When the image is from CameraX analysis use case, must call image.close() on received
-        // images when finished using them. Otherwise, new images may not be received or the camera
-        // may stall.
-        // Currently MlImage doesn't support ImageProxy directly, so we still need to call
-        // ImageProxy.close() here.
-        .addOnCompleteListener { image.close() }
-
-      return
-    }
-
-    requestDetectInImage(
-      InputImage.fromMediaImage(image.image!!, image.imageInfo.rotationDegrees),
-      graphicOverlay,
-      /* originalCameraImage= */ bitmap,
-      /* shouldShowFps= */ true,
-      frameStartMs
-    )
-      // When the image is from CameraX analysis use case, must call image.close() on received
-      // images when finished using them. Otherwise, new images may not be received or the camera
-      // may stall.
-      .addOnCompleteListener { image.close() }
-  }
-
-  // -----------------Common processing logic-------------------------------------------------------
-  private fun requestDetectInImage(
-    image: InputImage,
-    graphicOverlay: GraphicOverlay,
-    originalCameraImage: Bitmap?,
-    shouldShowFps: Boolean,
-    frameStartMs: Long
-  ): Task<T> {
-    return setUpListener(
-      detectInImage(image),
-      graphicOverlay,
-      originalCameraImage,
-      shouldShowFps,
-      frameStartMs
-    )
-  }
-
-  private fun requestDetectInImage(
-    image: MlImage,
-    graphicOverlay: GraphicOverlay,
-    originalCameraImage: Bitmap?,
-    shouldShowFps: Boolean,
-    frameStartMs: Long
-  ): Task<T> {
-    return setUpListener(
-      detectInImage(image),
-      graphicOverlay,
-      originalCameraImage,
-      shouldShowFps,
-      frameStartMs
-    )
-  }
-
-  private fun setUpListener(
-    task: Task<T>,
-    graphicOverlay: GraphicOverlay,
-    originalCameraImage: Bitmap?,
-    shouldShowFps: Boolean,
-    frameStartMs: Long
-  ): Task<T> {
-    val detectorStartMs = SystemClock.elapsedRealtime()
-    return task
-      .addOnSuccessListener(
-        executor,
-        OnSuccessListener { results: T ->
-          val endMs = SystemClock.elapsedRealtime()
-          val currentFrameLatencyMs = endMs - frameStartMs
-          val currentDetectorLatencyMs = endMs - detectorStartMs
-          if (numRuns >= 500) {
-            resetLatencyStats()
-          }
-          numRuns++
-          frameProcessedInOneSecondInterval++
-          totalFrameMs += currentFrameLatencyMs
-          maxFrameMs = max(currentFrameLatencyMs, maxFrameMs)
-          minFrameMs = min(currentFrameLatencyMs, minFrameMs)
-          totalDetectorMs += currentDetectorLatencyMs
-          maxDetectorMs = max(currentDetectorLatencyMs, maxDetectorMs)
-          minDetectorMs = min(currentDetectorLatencyMs, minDetectorMs)
-
-          // Only log inference info once per second. When frameProcessedInOneSecondInterval is
-          // equal to 1, it means this is the first frame processed during the current second.
-          if (frameProcessedInOneSecondInterval == 1) {
-            Timber.d( "Num of Runs: $numRuns")
-            Timber.d(
-              "Frame latency: max=" +
-                maxFrameMs +
-                ", min=" +
-                minFrameMs +
-                ", avg=" +
-                totalFrameMs / numRuns
-            )
-            Timber.d(
-              "Detector latency: max=" +
-                maxDetectorMs +
-                ", min=" +
-                minDetectorMs +
-                ", avg=" +
-                totalDetectorMs / numRuns
-            )
-            val mi = ActivityManager.MemoryInfo()
-            activityManager.getMemoryInfo(mi)
-            val availableMegs: Long = mi.availMem / 0x100000L
-            Timber.d( "Memory available in system: $availableMegs MB")
-          }
-          graphicOverlay.clear()
-          if (originalCameraImage != null) {
-            graphicOverlay.add(
-              CameraImageGraphic(
+        if (isMlImageEnabled(graphicOverlay.context)) {
+            val mlImage = BitmapMlImageBuilder(bitmap!!).build()
+            requestDetectInImage(
+                mlImage,
                 graphicOverlay,
-                originalCameraImage
-              )
+                /* originalCameraImage= */ null,
+                /* shouldShowFps= */ false,
+                frameStartMs
             )
-          }
-          this@VisionProcessorBase.onSuccess(results, graphicOverlay)
-          if (!DetectorOptions.shouldHideDetectionInfo()) {
-            graphicOverlay.add(
-              InferenceInfoGraphic(
+            mlImage.close()
+            return
+        }
+
+        requestDetectInImage(
+            InputImage.fromBitmap(bitmap!!, 0),
+            graphicOverlay,
+            /* originalCameraImage= */ null,
+            /* shouldShowFps= */ false,
+            frameStartMs
+        )
+    }
+
+    // -----------------Code for processing live preview frame from Camera1 API-----------------------
+    @Synchronized
+    override fun processByteBuffer(
+        data: ByteBuffer?,
+        frameMetadata: FrameMetadata?,
+        graphicOverlay: GraphicOverlay
+    ) {
+        latestImage = data
+        latestImageMetaData = frameMetadata
+        if (processingImage == null && processingMetaData == null) {
+            processLatestImage(graphicOverlay)
+        }
+    }
+
+    @Synchronized
+    private fun processLatestImage(graphicOverlay: GraphicOverlay) {
+        processingImage = latestImage
+        processingMetaData = latestImageMetaData
+        latestImage = null
+        latestImageMetaData = null
+        if (processingImage != null && processingMetaData != null && !isShutdown) {
+            processImage(processingImage!!, processingMetaData!!, graphicOverlay)
+        }
+    }
+
+    private fun processImage(
+        data: ByteBuffer,
+        frameMetadata: FrameMetadata,
+        graphicOverlay: GraphicOverlay
+    ) {
+        val frameStartMs = SystemClock.elapsedRealtime()
+        // If live viewport is on (that is the underneath surface view takes care of the camera preview
+        // drawing), skip the unnecessary bitmap creation that used for the manual preview drawing.
+        val bitmap =
+            if (DetectorOptions.isCameraLiveViewportEnabled()) null
+            else BitmapUtils.getBitmap(data, frameMetadata)
+
+        if (isMlImageEnabled(graphicOverlay.context)) {
+            val mlImage =
+                ByteBufferMlImageBuilder(
+                    data,
+                    frameMetadata.width,
+                    frameMetadata.height,
+                    MlImage.IMAGE_FORMAT_NV21
+                )
+                    .setRotation(frameMetadata.rotation)
+                    .build()
+            requestDetectInImage(
+                mlImage,
                 graphicOverlay,
-                currentFrameLatencyMs,
-                currentDetectorLatencyMs,
-                if (shouldShowFps) framesPerSecond else null
-              )
+                bitmap, /* shouldShowFps= */
+                true,
+                frameStartMs
             )
-          }
-          graphicOverlay.postInvalidate()
+                .addOnSuccessListener(executor) { processLatestImage(graphicOverlay) }
+
+            // This is optional. Java Garbage collection can also close it eventually.
+            mlImage.close()
+            return
         }
-      )
-      .addOnFailureListener(
-        executor,
-        { e: Exception ->
-          graphicOverlay.clear()
-          graphicOverlay.postInvalidate()
-          val error = "Failed to process. Error: " + e.localizedMessage
-          Toast.makeText(
-              graphicOverlay.context,
-              """
-          $error
-          Cause: ${e.cause}
-          """.trimIndent(),
-              Toast.LENGTH_SHORT
+
+        requestDetectInImage(
+            InputImage.fromByteBuffer(
+                data,
+                frameMetadata.width,
+                frameMetadata.height,
+                frameMetadata.rotation,
+                InputImage.IMAGE_FORMAT_NV21
+            ),
+            graphicOverlay,
+            bitmap,
+            /* shouldShowFps= */ true,
+            frameStartMs
+        )
+            .addOnSuccessListener(executor) { processLatestImage(graphicOverlay) }
+    }
+
+    // -----------------Code for processing live preview frame from CameraX API-----------------------
+    @ExperimentalGetImage
+    override fun processImageProxy(image: ImageProxy, graphicOverlay: GraphicOverlay) {
+        val frameStartMs = SystemClock.elapsedRealtime()
+        if (isShutdown) {
+            image.close()
+            return
+        }
+        var bitmap: Bitmap? = null
+        if (!DetectorOptions.isCameraLiveViewportEnabled()) {
+            bitmap = BitmapUtils.getBitmap(image)
+        }
+
+        if (isMlImageEnabled(graphicOverlay.context)) {
+            val mlImage =
+                MediaMlImageBuilder(image.image!!).setRotation(image.imageInfo.rotationDegrees)
+                    .build()
+            requestDetectInImage(
+                mlImage,
+                graphicOverlay,
+                /* originalCameraImage= */ bitmap,
+                /* shouldShowFps= */ true,
+                frameStartMs
             )
-            .show()
-          Timber.d( error)
-          e.printStackTrace()
-          this@VisionProcessorBase.onFailure(e)
+                // When the image is from CameraX analysis use case, must call image.close() on received
+                // images when finished using them. Otherwise, new images may not be received or the camera
+                // may stall.
+                // Currently MlImage doesn't support ImageProxy directly, so we still need to call
+                // ImageProxy.close() here.
+                .addOnCompleteListener { image.close() }
+
+            return
         }
-      )
-  }
 
-  override fun stop() {
-    executor.shutdown()
-    isShutdown = true
-    resetLatencyStats()
-    fpsTimer.cancel()
-  }
+        requestDetectInImage(
+            InputImage.fromMediaImage(image.image!!, image.imageInfo.rotationDegrees),
+            graphicOverlay,
+            /* originalCameraImage= */ bitmap,
+            /* shouldShowFps= */ true,
+            frameStartMs
+        )
+            // When the image is from CameraX analysis use case, must call image.close() on received
+            // images when finished using them. Otherwise, new images may not be received or the camera
+            // may stall.
+            .addOnCompleteListener { image.close() }
+    }
 
-  private fun resetLatencyStats() {
-    numRuns = 0
-    totalFrameMs = 0
-    maxFrameMs = 0
-    minFrameMs = Long.MAX_VALUE
-    totalDetectorMs = 0
-    maxDetectorMs = 0
-    minDetectorMs = Long.MAX_VALUE
-  }
+    // -----------------Common processing logic-------------------------------------------------------
+    private fun requestDetectInImage(
+        image: InputImage,
+        graphicOverlay: GraphicOverlay,
+        originalCameraImage: Bitmap?,
+        shouldShowFps: Boolean,
+        frameStartMs: Long
+    ): Task<T> {
+        return setUpListener(
+            detectInImage(image),
+            graphicOverlay,
+            originalCameraImage,
+            shouldShowFps,
+            frameStartMs
+        )
+    }
 
-  protected abstract fun detectInImage(image: InputImage): Task<T>
+    private fun requestDetectInImage(
+        image: MlImage,
+        graphicOverlay: GraphicOverlay,
+        originalCameraImage: Bitmap?,
+        shouldShowFps: Boolean,
+        frameStartMs: Long
+    ): Task<T> {
+        return setUpListener(
+            detectInImage(image),
+            graphicOverlay,
+            originalCameraImage,
+            shouldShowFps,
+            frameStartMs
+        )
+    }
 
-  protected open fun detectInImage(image: MlImage): Task<T> {
-    return Tasks.forException(
-      MlKitException(
-        "MlImage is currently not demonstrated for this feature",
-        MlKitException.INVALID_ARGUMENT
-      )
-    )
-  }
+    private fun setUpListener(
+        task: Task<T>,
+        graphicOverlay: GraphicOverlay,
+        originalCameraImage: Bitmap?,
+        shouldShowFps: Boolean,
+        frameStartMs: Long
+    ): Task<T> {
+        val detectorStartMs = SystemClock.elapsedRealtime()
+        return task
+            .addOnSuccessListener(
+                executor,
+                OnSuccessListener { results: T ->
+                    val endMs = SystemClock.elapsedRealtime()
+                    val currentFrameLatencyMs = endMs - frameStartMs
+                    val currentDetectorLatencyMs = endMs - detectorStartMs
+                    if (numRuns >= 500) {
+                        resetLatencyStats()
+                    }
+                    numRuns++
+                    frameProcessedInOneSecondInterval++
+                    totalFrameMs += currentFrameLatencyMs
+                    maxFrameMs = max(currentFrameLatencyMs, maxFrameMs)
+                    minFrameMs = min(currentFrameLatencyMs, minFrameMs)
+                    totalDetectorMs += currentDetectorLatencyMs
+                    maxDetectorMs = max(currentDetectorLatencyMs, maxDetectorMs)
+                    minDetectorMs = min(currentDetectorLatencyMs, minDetectorMs)
 
-  protected abstract fun onSuccess(results: T, graphicOverlay: GraphicOverlay)
+                    // Only log inference info once per second. When frameProcessedInOneSecondInterval is
+                    // equal to 1, it means this is the first frame processed during the current second.
+                    if (frameProcessedInOneSecondInterval == 1) {
+                        Timber.d("Num of Runs: $numRuns")
+                        Timber.d(
+                            "Frame latency: max=" +
+                                    maxFrameMs +
+                                    ", min=" +
+                                    minFrameMs +
+                                    ", avg=" +
+                                    totalFrameMs / numRuns
+                        )
+                        Timber.d(
+                            "Detector latency: max=" +
+                                    maxDetectorMs +
+                                    ", min=" +
+                                    minDetectorMs +
+                                    ", avg=" +
+                                    totalDetectorMs / numRuns
+                        )
+                        val mi = ActivityManager.MemoryInfo()
+                        activityManager.getMemoryInfo(mi)
+                        val availableMegs: Long = mi.availMem / 0x100000L
+                        Timber.d("Memory available in system: $availableMegs MB")
+                    }
+                    graphicOverlay.clear()
+                    if (originalCameraImage != null) {
+                        graphicOverlay.add(
+                            CameraImageGraphic(
+                                graphicOverlay,
+                                originalCameraImage
+                            )
+                        )
+                    }
+                    this@VisionProcessorBase.onSuccess(results, graphicOverlay)
+                    if (!DetectorOptions.shouldHideDetectionInfo()) {
+                        graphicOverlay.add(
+                            InferenceInfoGraphic(
+                                graphicOverlay,
+                                currentFrameLatencyMs,
+                                currentDetectorLatencyMs,
+                                if (shouldShowFps) framesPerSecond else null
+                            )
+                        )
+                    }
+                    graphicOverlay.postInvalidate()
+                }
+            )
+            .addOnFailureListener(
+                executor,
+                { e: Exception ->
+                    graphicOverlay.clear()
+                    graphicOverlay.postInvalidate()
+                    val error = "Failed to process. Error: " + e.localizedMessage
+                    graphicOverlay.context.showToast("$error \nCause: ${e.cause}")
+                    Timber.d(error)
+                    e.printStackTrace()
+                    this@VisionProcessorBase.onFailure(e)
+                }
+            )
+    }
 
-  protected abstract fun onFailure(e: Exception)
+    override fun stop() {
+        executor.shutdown()
+        isShutdown = true
+        resetLatencyStats()
+        fpsTimer.cancel()
+    }
 
-  protected open fun isMlImageEnabled(context: Context?): Boolean {
-    return false
-  }
+    private fun resetLatencyStats() {
+        numRuns = 0
+        totalFrameMs = 0
+        maxFrameMs = 0
+        minFrameMs = Long.MAX_VALUE
+        totalDetectorMs = 0
+        maxDetectorMs = 0
+        minDetectorMs = Long.MAX_VALUE
+    }
+
+    protected abstract fun detectInImage(image: InputImage): Task<T>
+
+    protected open fun detectInImage(image: MlImage): Task<T> {
+        return Tasks.forException(
+            MlKitException(
+                "MlImage is currently not demonstrated for this feature",
+                MlKitException.INVALID_ARGUMENT
+            )
+        )
+    }
+
+    protected abstract fun onSuccess(results: T, graphicOverlay: GraphicOverlay)
+
+    protected abstract fun onFailure(e: Exception)
+
+    protected open fun isMlImageEnabled(context: Context?): Boolean {
+        return false
+    }
 }

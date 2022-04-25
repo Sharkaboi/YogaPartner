@@ -30,7 +30,7 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name=".modules.asana_pose.ui.AsanaPoseActivity"
+            android:name="com.sharkaboi.yogapartner.modules.main.MainActivity"
             android:exported="true"
             android:theme="@style/AppTheme">
             <intent-filter>

@@ -1,11 +1,10 @@
 package com.sharkaboi.yogapartner.modules.asana_pose.ui
 
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.CompoundButton
-import android.widget.Toast
-import android.widget.ToggleButton
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
@@ -13,10 +12,13 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
-import com.google.android.gms.common.annotation.KeepName
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.google.mlkit.common.MlKitException
-import com.sharkaboi.yogapartner.R
 import com.sharkaboi.yogapartner.common.extensions.observe
+import com.sharkaboi.yogapartner.common.extensions.showToast
+import com.sharkaboi.yogapartner.databinding.FragmentAsanaPoseBinding
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
 import com.sharkaboi.yogapartner.ml.interfaces.VisionImageProcessor
 import com.sharkaboi.yogapartner.ml.processor.PoseDetectorProcessor
@@ -25,13 +27,15 @@ import com.sharkaboi.yogapartner.modules.asana_pose.vm.AsanaPoseViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
-/** Live preview demo app for ML Kit APIs using CameraX. */
-@KeepName
 @AndroidEntryPoint
-class AsanaPoseActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener {
+class AsanaPoseFragment : Fragment(), CompoundButton.OnCheckedChangeListener {
+    private var _binding: FragmentAsanaPoseBinding? = null
+    private val binding get() = _binding!!
     private val asanaPoseViewModel by viewModels<AsanaPoseViewModel>()
-    private var previewView: PreviewView? = null
-    private var graphicOverlay: GraphicOverlay? = null
+    private val navController get() = findNavController()
+
+    private val previewView: PreviewView get() = binding.previewView
+    private val graphicOverlay: GraphicOverlay get() = binding.graphicOverlay
     private var cameraProvider: ProcessCameraProvider? = null
     private var previewUseCase: Preview? = null
     private var analysisUseCase: ImageAnalysis? = null
@@ -40,21 +44,27 @@ class AsanaPoseActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeLis
     private var lensFacing = CameraSelector.LENS_FACING_FRONT
     private var cameraSelector: CameraSelector? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Timber.d("onCreate")
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentAsanaPoseBinding.inflate(layoutInflater, container, false)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        init()
+    }
+
+    private fun init() {
         cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
-        setContentView(R.layout.activity_asana_pose)
-        previewView = findViewById(R.id.preview_view)
-        if (previewView == null) {
-            Timber.d("previewView is null")
-        }
-        graphicOverlay = findViewById(R.id.graphic_overlay)
-        if (graphicOverlay == null) {
-            Timber.d("graphicOverlay is null")
-        }
-        val facingSwitch = findViewById<ToggleButton>(R.id.facing_switch)
-        facingSwitch.setOnCheckedChangeListener(this)
+        binding.facingSwitch.setOnCheckedChangeListener(this)
         observe(asanaPoseViewModel.processCameraProvider) { provider: ProcessCameraProvider? ->
             cameraProvider = provider
             bindAllCameraUseCases()
@@ -83,15 +93,12 @@ class AsanaPoseActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeLis
         } catch (e: Exception) {
             // Falls through
         }
-        Toast.makeText(
-            applicationContext,
-            "This device does not have lens with facing: $newLensFacing",
-            Toast.LENGTH_SHORT
+        showToast(
+            "This device does not have lens with facing: $newLensFacing"
         )
-            .show()
     }
 
-    public override fun onResume() {
+    override fun onResume() {
         super.onResume()
         bindAllCameraUseCases()
     }
@@ -102,7 +109,7 @@ class AsanaPoseActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeLis
         imageProcessor?.run { this.stop() }
     }
 
-    public override fun onDestroy() {
+    override fun onDestroy() {
         super.onDestroy()
         imageProcessor?.run { this.stop() }
     }
@@ -134,7 +141,7 @@ class AsanaPoseActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeLis
             builder.setTargetResolution(targetResolution)
         }
         previewUseCase = builder.build()
-        previewUseCase!!.setSurfaceProvider(previewView!!.surfaceProvider)
+        previewUseCase!!.setSurfaceProvider(previewView.surfaceProvider)
         cameraProvider!!.bindToLifecycle(/* lifecycleOwner= */ this,
             cameraSelector!!,
             previewUseCase
@@ -159,7 +166,7 @@ class AsanaPoseActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeLis
                 val rescaleZ = DetectorOptions.rescaleZForVisualization()
                 val runClassification = DetectorOptions.shouldPoseDetectionRunClassification()
                 PoseDetectorProcessor(
-                    this,
+                    requireContext(),
                     poseDetectorOptions,
                     shouldShowInFrameLikelihood,
                     visualizeZ,
@@ -169,12 +176,9 @@ class AsanaPoseActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeLis
                 )
             } catch (e: Exception) {
                 Timber.d("Can not create image processor", e)
-                Toast.makeText(
-                    applicationContext,
+                showToast(
                     "Can not create image processor: " + e.localizedMessage,
-                    Toast.LENGTH_LONG
                 )
-                    .show()
                 return
             }
 
@@ -191,19 +195,19 @@ class AsanaPoseActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeLis
         analysisUseCase?.setAnalyzer(
             // imageProcessor.processImageProxy will use another thread to run the detection underneath,
             // thus we can just runs the analyzer itself on main thread.
-            ContextCompat.getMainExecutor(this),
+            ContextCompat.getMainExecutor(requireContext()),
             { imageProxy: ImageProxy ->
                 if (needUpdateGraphicOverlayImageSourceInfo) {
                     val isImageFlipped = lensFacing == CameraSelector.LENS_FACING_FRONT
                     val rotationDegrees = imageProxy.imageInfo.rotationDegrees
                     if (rotationDegrees == 0 || rotationDegrees == 180) {
-                        graphicOverlay!!.setImageSourceInfo(
+                        graphicOverlay.setImageSourceInfo(
                             imageProxy.width,
                             imageProxy.height,
                             isImageFlipped
                         )
                     } else {
-                        graphicOverlay!!.setImageSourceInfo(
+                        graphicOverlay.setImageSourceInfo(
                             imageProxy.height,
                             imageProxy.width,
                             isImageFlipped
@@ -215,8 +219,7 @@ class AsanaPoseActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeLis
                     imageProcessor!!.processImageProxy(imageProxy, graphicOverlay)
                 } catch (e: MlKitException) {
                     Timber.d("Failed to process image. Error: " + e.localizedMessage)
-                    Toast.makeText(applicationContext, e.localizedMessage, Toast.LENGTH_SHORT)
-                        .show()
+                    showToast(e.localizedMessage)
                 }
             }
         )
