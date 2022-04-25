@@ -1,6 +1,4 @@
-
-
-package com.sharkaboi.yogapartner.kotlin
+package com.sharkaboi.yogapartner.common.extensions
 
 import com.google.android.gms.tasks.OnCanceledListener
 import com.google.android.gms.tasks.OnCompleteListener

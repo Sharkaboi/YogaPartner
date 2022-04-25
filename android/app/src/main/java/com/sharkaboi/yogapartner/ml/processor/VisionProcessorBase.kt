@@ -22,7 +22,7 @@ import com.google.android.odml.image.MediaMlImageBuilder
 import com.google.android.odml.image.MlImage
 import com.google.mlkit.common.MlKitException
 import com.google.mlkit.vision.common.InputImage
-import com.sharkaboi.yogapartner.kotlin.addOnSuccessListener
+import com.sharkaboi.yogapartner.common.extensions.addOnSuccessListener
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
 import com.sharkaboi.yogapartner.ml.interfaces.VisionImageProcessor
 import com.sharkaboi.yogapartner.ml.models.FrameMetadata
