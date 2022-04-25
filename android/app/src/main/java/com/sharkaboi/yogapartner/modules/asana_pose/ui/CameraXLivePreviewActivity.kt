@@ -167,7 +167,7 @@ class CameraXLivePreviewActivity : AppCompatActivity(), CompoundButton.OnChecked
                     visualizeZ,
                     rescaleZ,
                     runClassification,
-                    /* isStreamMode = */ true
+                    /* isStreamMode = */ DetectorOptions.shouldShowReps()
                 )
             } catch (e: Exception) {
                 Timber.d("Can not create image processor", e)

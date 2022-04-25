@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import androidx.annotation.Nullable;
+import com.sharkaboi.yogapartner.ml.config.DetectorOptions;
 
 /** Graphic instance for rendering inference info (latency, FPS, resolution) in an overlay view. */
 public class InferenceInfoGraphic extends GraphicOverlay.Graphic {
@@ -20,7 +21,7 @@ public class InferenceInfoGraphic extends GraphicOverlay.Graphic {
 
   // Only valid when a stream of input images is being processed. Null for single image mode.
   @Nullable private final Integer framesPerSecond;
-  private boolean showLatencyInfo = true;
+  private boolean showLatencyInfo = DetectorOptions.shouldShowLatencyInfo();
 
   public InferenceInfoGraphic(
       GraphicOverlay overlay,
@@ -50,11 +51,13 @@ public class InferenceInfoGraphic extends GraphicOverlay.Graphic {
     float x = TEXT_SIZE * 0.5f;
     float y = TEXT_SIZE * 1.5f;
 
-    canvas.drawText(
-        "InputImage size: " + overlay.getImageHeight() + "x" + overlay.getImageWidth(),
-        x,
-        y,
-        textPaint);
+    if (DetectorOptions.shouldShowInputImageSize()) {
+      canvas.drawText(
+              "InputImage size: " + overlay.getImageHeight() + "x" + overlay.getImageWidth(),
+              x,
+              y,
+              textPaint);
+    }
 
     if (!showLatencyInfo) {
       return;

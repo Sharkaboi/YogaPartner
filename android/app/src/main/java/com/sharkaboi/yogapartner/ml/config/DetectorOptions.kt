@@ -9,6 +9,7 @@ object DetectorOptions {
     private val useAccurate = false
     private val preferGPU = true
 
+    @JvmStatic
     fun getOption(): PoseDetectorOptionsBase {
         if (useAccurate) {
             val builder: AccuratePoseDetectorOptions.Builder =
@@ -28,31 +29,53 @@ object DetectorOptions {
         }
     }
 
+    @JvmStatic
     fun isCameraLiveViewportEnabled(): Boolean {
         return false
     }
 
+    @JvmStatic
     fun shouldHideDetectionInfo(): Boolean {
         return false
     }
 
+    @JvmStatic
     fun getVisualizeZ(): Boolean {
         return true
     }
 
+    @JvmStatic
     fun rescaleZForVisualization(): Boolean {
         return true
     }
 
+    @JvmStatic
     fun inFrameLikelihood(): Boolean {
         return true
     }
 
+    @JvmStatic
     fun shouldPoseDetectionRunClassification(): Boolean {
         return true
     }
 
+    @JvmStatic
     fun getCameraXTargetResolution(): Size? {
         return null
+    }
+
+    @JvmStatic
+    fun shouldShowLatencyInfo(): Boolean {
+        return false
+    }
+
+    @JvmStatic
+    fun shouldShowInputImageSize(): Boolean {
+        return false
+    }
+
+    @JvmStatic
+    fun shouldShowReps(): Boolean {
+        return false
     }
 }
