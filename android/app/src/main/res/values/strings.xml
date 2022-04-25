@@ -149,5 +149,9 @@
     <!-- Strings for segmentation preference. -->
     <string name="pref_title_segmentation_raw_size_mask" translatable="false">Enable raw size mask</string>
     <string name="pref_key_segmentation_raw_size_mask" translatable="false">srsm</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="app_name_formatted">Yoga Partner</string>
+    <string name="capture_your_pose">Capture your pose</string>
 
 </resources>

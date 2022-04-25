@@ -3,11 +3,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/asanaPoseFragment">
+    app:startDestination="@id/asanaListFragment">
 
     <fragment
         android:id="@+id/asanaPoseFragment"
         android:name="com.sharkaboi.yogapartner.modules.asana_pose.ui.AsanaPoseFragment"
         android:label="fragment_asana_pose"
         tools:layout="@layout/fragment_asana_pose" />
+
+    <fragment
+        android:id="@+id/asanaListFragment"
+        android:name="com.sharkaboi.yogapartner.modules.asana_list.ui.AsanaListFragment"
+        android:label="fragment_asana_list"
+        tools:layout="@layout/fragment_asana_list" />
+
+    <action
+        android:id="@+id/openAsanaPose"
+        app:destination="@id/asanaPoseFragment" />
 </navigation>

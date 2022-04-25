@@ -3,6 +3,7 @@ package com.sharkaboi.yogapartner.modules.main
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.sharkaboi.yogapartner.R
@@ -15,6 +16,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Handle the splash screen transition.
+        installSplashScreen()
+
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -23,6 +27,5 @@ class MainActivity : AppCompatActivity() {
 
     private fun initNav() {
         navController = findNavController(R.id.fragmentContainer)
-
     }
 }
