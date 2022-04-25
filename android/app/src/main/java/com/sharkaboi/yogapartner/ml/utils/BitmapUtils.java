@@ -58,7 +58,6 @@ public class BitmapUtils {
   }
 
   /** Converts a YUV_420_888 image from CameraX API to a bitmap. */
-  @RequiresApi(VERSION_CODES.LOLLIPOP)
   @Nullable
   @ExperimentalGetImage
   public static Bitmap getBitmap(ImageProxy image) {
@@ -158,7 +157,7 @@ public class BitmapUtils {
 
       exif = new ExifInterface(inputStream);
     } catch (IOException e) {
-      Timber.d( "failed to open file to read rotation meta data: " + imageUri, e);
+      Timber.d( "failed to open file to read rotation meta data: " + imageUri + " "+  e);
       return 0;
     }
 
@@ -212,7 +211,6 @@ public class BitmapUtils {
   }
 
   /** Checks if the UV plane buffers of a YUV_420_888 image are in the NV21 format. */
-  @RequiresApi(VERSION_CODES.KITKAT)
   private static boolean areUVPlanesNV21(Plane[] planes, int width, int height) {
     int imageSize = width * height;
 

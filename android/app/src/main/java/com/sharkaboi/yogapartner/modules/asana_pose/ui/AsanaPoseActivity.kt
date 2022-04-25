@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.CompoundButton
 import android.widget.Toast
 import android.widget.ToggleButton
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -12,20 +13,23 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.common.annotation.KeepName
 import com.google.mlkit.common.MlKitException
 import com.sharkaboi.yogapartner.R
+import com.sharkaboi.yogapartner.common.extensions.observe
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
 import com.sharkaboi.yogapartner.ml.interfaces.VisionImageProcessor
 import com.sharkaboi.yogapartner.ml.processor.PoseDetectorProcessor
 import com.sharkaboi.yogapartner.modules.asana_pose.camera.GraphicOverlay
-import com.sharkaboi.yogapartner.modules.asana_pose.vm.CameraXViewModel
+import com.sharkaboi.yogapartner.modules.asana_pose.vm.AsanaPoseViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
 /** Live preview demo app for ML Kit APIs using CameraX. */
 @KeepName
-class CameraXLivePreviewActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener {
+@AndroidEntryPoint
+class AsanaPoseActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener {
+    private val asanaPoseViewModel by viewModels<AsanaPoseViewModel>()
     private var previewView: PreviewView? = null
     private var graphicOverlay: GraphicOverlay? = null
     private var cameraProvider: ProcessCameraProvider? = null
@@ -51,16 +55,10 @@ class CameraXLivePreviewActivity : AppCompatActivity(), CompoundButton.OnChecked
         }
         val facingSwitch = findViewById<ToggleButton>(R.id.facing_switch)
         facingSwitch.setOnCheckedChangeListener(this)
-        ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(application))
-            .get(CameraXViewModel::class.java)
-            .processCameraProvider
-            .observe(
-                this,
-                { provider: ProcessCameraProvider? ->
-                    cameraProvider = provider
-                    bindAllCameraUseCases()
-                }
-            )
+        observe(asanaPoseViewModel.processCameraProvider) { provider: ProcessCameraProvider? ->
+            cameraProvider = provider
+            bindAllCameraUseCases()
+        }
     }
 
     override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {

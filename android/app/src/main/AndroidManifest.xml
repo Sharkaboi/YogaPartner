@@ -29,64 +29,8 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <!-- Optional: Add it to automatically download ML model to device after
-          your app is installed.-->
-        <!--        <meta-data-->
-        <!--            android:name="com.google.mlkit.vision.DEPENDENCIES"-->
-        <!--            android:value="barcode,face,ocr,ica,custom_ica"/>-->
-
-        <!--        <activity-->
-        <!--            android:name=".EntryChoiceActivity"-->
-        <!--            android:exported="true"-->
-        <!--            android:theme="@style/AppTheme">-->
-        <!--            <intent-filter>-->
-        <!--                <action android:name="android.intent.action.MAIN"/>-->
-        <!--                <category android:name="android.intent.category.LAUNCHER"/>-->
-        <!--            </intent-filter>-->
-        <!--        </activity>-->
-
-        <!--        <activity-->
-        <!--            android:name=".java.ChooserActivity"-->
-        <!--            android:exported="false">-->
-        <!--        </activity>-->
-
-        <!--        <activity-->
-        <!--            android:name=".java.LivePreviewActivity"-->
-        <!--            android:exported="false"-->
-        <!--            android:theme="@style/AppTheme">-->
-        <!--        </activity>-->
-
-        <!--        <activity-->
-        <!--            android:name=".java.CameraXLivePreviewActivity"-->
-        <!--            android:exported="false"-->
-        <!--            android:theme="@style/AppTheme">-->
-        <!--        </activity>-->
-
-        <!--        <activity-->
-        <!--            android:name=".java.CameraXSourceDemoActivity"-->
-        <!--            android:exported="false"-->
-        <!--            android:theme="@style/AppTheme">-->
-        <!--        </activity>-->
-
-        <!--        <activity-->
-        <!--            android:name=".java.StillImageActivity"-->
-        <!--            android:exported="false"-->
-        <!--            android:theme="@style/AppTheme">-->
-        <!--        </activity>-->
-
-        <!--        <activity-->
-        <!--            android:name=".kotlin.ChooserActivity"-->
-        <!--            android:exported="false">-->
-        <!--        </activity>-->
-
-        <!--        <activity-->
-        <!--            android:name=".kotlin.LivePreviewActivity"-->
-        <!--            android:exported="false"-->
-        <!--            android:theme="@style/AppTheme">-->
-        <!--        </activity>-->
-
         <activity
-            android:name=".modules.asana_pose.ui.CameraXLivePreviewActivity"
+            android:name=".modules.asana_pose.ui.AsanaPoseActivity"
             android:exported="true"
             android:theme="@style/AppTheme">
             <intent-filter>
@@ -94,28 +38,5 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!--        <activity-->
-        <!--            android:name=".kotlin.CameraXSourceDemoActivity"-->
-        <!--            android:exported="false"-->
-        <!--            android:theme="@style/AppTheme">-->
-        <!--        </activity>-->
-
-        <!--        <activity-->
-        <!--            android:name=".kotlin.StillImageActivity"-->
-        <!--            android:exported="false"-->
-        <!--            android:theme="@style/AppTheme">-->
-        <!--        </activity>-->
-
-        <!--        <activity-->
-        <!--            android:name=".preference.SettingsActivity"-->
-        <!--            android:exported="false"/>-->
-
     </application>
-    <!--    <queries>-->
-    <!--        <intent>-->
-    <!--            <action android:name="android.media.action.IMAGE_CAPTURE" />-->
-    <!--        </intent>-->
-    <!--    </queries>-->
-
 </manifest>
