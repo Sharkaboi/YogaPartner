@@ -9,8 +9,8 @@ import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseDetector
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase
 import com.sharkaboi.yogapartner.ml.classification.PoseClassifierProcessor
-import com.sharkaboi.yogapartner.modules.asana_pose.camera.GraphicOverlay
-import com.sharkaboi.yogapartner.modules.asana_pose.ui.PoseGraphic
+import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.GraphicOverlay
+import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.LandmarkPointsAndInferenceGraphic
 import timber.log.Timber
 import java.util.*
 import java.util.concurrent.Executor
@@ -97,7 +97,7 @@ class PoseDetectorProcessor(
         graphicOverlay: GraphicOverlay
     ) {
         graphicOverlay.add(
-            PoseGraphic(
+            LandmarkPointsAndInferenceGraphic(
                 graphicOverlay,
                 results.pose,
                 showInFrameLikelihood,

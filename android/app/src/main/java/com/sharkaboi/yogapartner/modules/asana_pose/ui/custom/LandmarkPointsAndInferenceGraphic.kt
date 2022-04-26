@@ -1,4 +1,4 @@
-package com.sharkaboi.yogapartner.modules.asana_pose.ui
+package com.sharkaboi.yogapartner.modules.asana_pose.ui.custom
 
 import android.graphics.Canvas
 import android.graphics.Color
@@ -7,14 +7,13 @@ import com.google.common.primitives.Ints
 import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseLandmark
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
-import com.sharkaboi.yogapartner.modules.asana_pose.camera.GraphicOverlay
-import com.sharkaboi.yogapartner.modules.asana_pose.camera.GraphicOverlay.Graphic
+import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.GraphicOverlay.Graphic
 import java.lang.Math.max
 import java.lang.Math.min
 import java.util.*
 
 /** Draw the detected pose in preview.  */
-class PoseGraphic internal constructor(
+class LandmarkPointsAndInferenceGraphic internal constructor(
     overlay: GraphicOverlay,
     private val pose: Pose,
     private val showInFrameLikelihood: Boolean,

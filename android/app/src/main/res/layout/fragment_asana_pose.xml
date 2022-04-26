@@ -15,7 +15,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:background="@tools:sample/backgrounds/scenic" />
 
-    <com.sharkaboi.yogapartner.modules.asana_pose.camera.GraphicOverlay
+    <com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.GraphicOverlay
         android:id="@+id/graphic_overlay"
         android:layout_width="0dp"
         android:layout_height="0dp"
