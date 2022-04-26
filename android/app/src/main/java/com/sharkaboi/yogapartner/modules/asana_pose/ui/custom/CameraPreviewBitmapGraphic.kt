@@ -11,6 +11,6 @@ class CameraPreviewBitmapGraphic(
 ) : Graphic(overlay) {
 
     override fun draw(canvas: Canvas) {
-        canvas.drawBitmap(bitmap, transformationMatrix, null)
+        canvas.drawBitmap(bitmap, super.getTransformationMatrix(), null)
     }
 }
