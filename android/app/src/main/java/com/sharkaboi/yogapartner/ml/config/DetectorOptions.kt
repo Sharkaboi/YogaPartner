@@ -83,4 +83,9 @@ object DetectorOptions {
     fun shouldShowOutLine(): Boolean {
         return true
     }
+
+    @JvmStatic
+    fun isMLImageEnabled(): Boolean {
+        return true
+    }
 }

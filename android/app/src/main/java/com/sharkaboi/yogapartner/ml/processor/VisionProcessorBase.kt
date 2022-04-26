@@ -202,7 +202,7 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
             bitmap = BitmapUtils.getBitmap(image)
         }
 
-        if (isMlImageEnabled(graphicOverlay.context)) {
+        if (DetectorOptions.isMLImageEnabled()) {
             val mlImage =
                 MediaMlImageBuilder(image.image!!).setRotation(image.imageInfo.rotationDegrees)
                     .build()
@@ -389,8 +389,4 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
     protected abstract fun onSuccess(results: T, graphicOverlay: GraphicOverlay)
 
     protected abstract fun onFailure(e: Exception)
-
-    protected open fun isMlImageEnabled(context: Context?): Boolean {
-        return false
-    }
 }

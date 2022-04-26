@@ -113,9 +113,4 @@ class PoseDetectorProcessor(
   override fun onFailure(e: Exception) {
     Timber.d( "Pose detection failed!", e)
   }
-
-  override fun isMlImageEnabled(context: Context?): Boolean {
-    // Use MlImage in Pose Detection by default, change it to OFF to switch to InputImage.
-    return true
-  }
 }
