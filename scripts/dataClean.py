@@ -8,7 +8,7 @@ folders = os.listdir(path)
 for f in folders:
     old_path = os.path.join(path, f)
     new_name = re.sub(r"\s+", "_", f)
-    new_path = os.path.join(path, re.sub(r"\s+", "_", new_name))
+    new_path = os.path.join(path, new_name)
     os.rename(old_path, new_path)
     images = os.listdir(new_path)
     count = 1
