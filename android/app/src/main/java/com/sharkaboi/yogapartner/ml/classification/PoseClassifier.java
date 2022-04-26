@@ -2,7 +2,6 @@
 
 package com.sharkaboi.yogapartner.ml.classification;
 
-import static com.sharkaboi.yogapartner.ml.classification.PoseEmbedding.getPoseEmbedding;
 import static com.sharkaboi.yogapartner.ml.utils.PointF3DUtils.maxAbs;
 import static com.sharkaboi.yogapartner.ml.utils.PointF3DUtils.multiply;
 import static com.sharkaboi.yogapartner.ml.utils.PointF3DUtils.multiplyAll;
@@ -16,6 +15,7 @@ import com.google.mlkit.vision.common.PointF3D;
 import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseLandmark;
 import com.sharkaboi.yogapartner.ml.models.ClassificationResult;
+import com.sharkaboi.yogapartner.ml.utils.PoseEmbeddingUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,8 +83,8 @@ public class PoseClassifier {
     List<PointF3D> flippedLandmarks = new ArrayList<>(landmarks);
     multiplyAll(flippedLandmarks, PointF3D.from(-1, 1, 1));
 
-    List<PointF3D> embedding = getPoseEmbedding(landmarks);
-    List<PointF3D> flippedEmbedding = getPoseEmbedding(flippedLandmarks);
+    List<PointF3D> embedding = PoseEmbeddingUtils.getPoseEmbedding(landmarks);
+    List<PointF3D> flippedEmbedding = PoseEmbeddingUtils.getPoseEmbedding(flippedLandmarks);
 
 
     // Classification is done in two stages:

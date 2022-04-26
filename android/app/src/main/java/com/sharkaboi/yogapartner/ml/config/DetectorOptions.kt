@@ -6,6 +6,10 @@ import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
 
 object DetectorOptions {
+    // Multiplier to apply to the torso to get minimal body size. Picked this by experimentation.
+    /** [PoseEmbeddingUtils] */
+    const val torsoEmbeddingMultiplier = 2.5f
+
     private val useAccurate = true
     private val preferGPU = true
 

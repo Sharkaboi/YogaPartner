@@ -2,9 +2,9 @@
 
 package com.sharkaboi.yogapartner.ml.classification;
 
-import android.util.Log;
 import com.google.common.base.Splitter;
 import com.google.mlkit.vision.common.PointF3D;
+import com.sharkaboi.yogapartner.ml.utils.PoseEmbeddingUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,7 @@ public class PoseSample {
   public PoseSample(String name, String className, List<PointF3D> landmarks) {
     this.name = name;
     this.className = className;
-    this.embedding = PoseEmbedding.getPoseEmbedding(landmarks);
+    this.embedding = PoseEmbeddingUtils.getPoseEmbedding(landmarks);
   }
 
   public String getName() {
