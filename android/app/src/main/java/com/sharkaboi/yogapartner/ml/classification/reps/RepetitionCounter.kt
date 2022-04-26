@@ -22,7 +22,7 @@ class RepetitionCounter @JvmOverloads constructor(
      * @return number of reps.
      */
     fun addClassificationResult(classificationResult: ClassificationResult): Int {
-        val poseConfidence = classificationResult.getClassConfidence(className)
+        val poseConfidence = classificationResult.getClassNameConfidence(className)
 
         if (!poseEntered) {
             poseEntered = poseConfidence > enterThreshold

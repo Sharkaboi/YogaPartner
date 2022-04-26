@@ -1,6 +1,7 @@
 package com.sharkaboi.yogapartner.ml.classification.reps
 
 import android.os.SystemClock
+import com.sharkaboi.yogapartner.ml.classification.PoseClass
 import com.sharkaboi.yogapartner.ml.models.ClassificationResult
 import java.util.*
 import java.util.concurrent.LinkedBlockingDeque
@@ -33,7 +34,7 @@ class EMASmoothing @JvmOverloads constructor(
         // Insert at the beginning of the window.
         window.addFirst(classificationResult)
 
-        val allClasses: MutableSet<String> = HashSet()
+        val allClasses: MutableSet<PoseClass> = HashSet()
         for (result in window) {
             allClasses.addAll(result.allClasses)
         }
