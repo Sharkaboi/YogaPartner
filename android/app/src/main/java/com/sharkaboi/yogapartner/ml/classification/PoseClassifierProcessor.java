@@ -15,6 +15,7 @@ import com.sharkaboi.yogapartner.R;
 import com.sharkaboi.yogapartner.ml.classification.reps.EMASmoothing;
 import com.sharkaboi.yogapartner.ml.classification.reps.RepetitionCounter;
 import com.sharkaboi.yogapartner.ml.models.ClassificationResult;
+import com.sharkaboi.yogapartner.ml.models.TrainedPoseSample;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -159,23 +160,23 @@ public class PoseClassifierProcessor {
     }
 
     private void loadPoseSamples(Context context) {
-        List<PoseSample> poseSamples = new ArrayList<>();
+        List<TrainedPoseSample> trainedPoseSamples = new ArrayList<>();
         try {
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(context.getResources().openRawResource(R.raw.yoga_poses)));
             String csvLine = reader.readLine();
             while (csvLine != null) {
                 // If line is not a valid {@link PoseSample}, we'll get null and skip adding to the list.
-                PoseSample poseSample = PoseSample.getPoseSample(csvLine, ",");
-                if (poseSample != null) {
-                    poseSamples.add(poseSample);
+                TrainedPoseSample trainedPoseSample = TrainedPoseSample.getPoseSample(csvLine, ",");
+                if (trainedPoseSample != null) {
+                    trainedPoseSamples.add(trainedPoseSample);
                 }
                 csvLine = reader.readLine();
             }
         } catch (IOException e) {
             Timber.d("Error when loading pose samples.\n" + e);
         }
-        poseClassifier = new PoseClassifier(poseSamples);
+        poseClassifier = new PoseClassifier(trainedPoseSamples);
         if (isStreamMode) {
             for (String className : POSE_CLASSES) {
                 repCounters.add(new RepetitionCounter(className));
