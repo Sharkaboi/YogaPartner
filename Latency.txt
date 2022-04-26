@@ -1,0 +1,7 @@
+Accurate, GPU, 1min :
+
+1st try:
+50 runs
+Frame latency: max=114, min=85, avg=100
+Detector latency: max=89, min=64, avg=78
+frame rate - avg 10fps
