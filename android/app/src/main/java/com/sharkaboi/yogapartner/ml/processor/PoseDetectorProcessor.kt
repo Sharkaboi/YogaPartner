@@ -30,7 +30,7 @@ class PoseDetectorProcessor(
   private val isStreamMode: Boolean
 ) : VisionProcessorBase<PoseDetectorProcessor.PoseWithClassification>(context) {
 
-  private val detector: PoseDetector
+  private val detector: PoseDetector = PoseDetection.getClient(options)
   private val classificationExecutor: Executor
 
   private var poseClassifierProcessor: PoseClassifierProcessor? = null
@@ -39,7 +39,6 @@ class PoseDetectorProcessor(
   class PoseWithClassification(val pose: Pose, val classificationResult: List<String>)
 
   init {
-    detector = PoseDetection.getClient(options)
     classificationExecutor = Executors.newSingleThreadExecutor()
   }
 
@@ -71,6 +70,7 @@ class PoseDetectorProcessor(
       )
   }
 
+  // do not call super.detectInImage
   override fun detectInImage(image: MlImage): Task<PoseWithClassification> {
     return detector
       .process(image)

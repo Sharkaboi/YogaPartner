@@ -39,15 +39,11 @@ import java.util.*
  *
  * @param <T> The type of the detected feature.
  */
-abstract class VisionProcessorBase<T>(context: Context) :
-    VisionImageProcessor {
+abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
     private var activityManager: ActivityManager =
         context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
     private val fpsTimer = Timer()
-    private val executor =
-        ScopedExecutor(
-            TaskExecutors.MAIN_THREAD
-        )
+    private val executor = ScopedExecutor(TaskExecutors.MAIN_THREAD)
 
     // Whether this processor is already shut down
     private var isShutdown = false
