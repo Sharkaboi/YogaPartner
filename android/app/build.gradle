@@ -44,8 +44,8 @@ android {
     }
     kotlinOptions {
         jvmTarget = "11"
-        freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
         freeCompilerArgs += "-Xopt-in=androidx.camera.core.ExperimentalGetImage"
+        freeCompilerArgs += "-opt-in=androidx.camera.core.ExperimentalGetImage"
     }
 
     buildFeatures {
@@ -118,4 +118,11 @@ configurations {
     // Resolves dependency conflict caused by some dependencies use
     // com.google.guava:guava and com.google.guava:listenablefuture together.
     all*.exclude group: 'com.google.guava', module: 'listenablefuture'
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += "-Xopt-in=androidx.camera.core.ExperimentalGetImage"
+        freeCompilerArgs += "-opt-in=androidx.camera.core.ExperimentalGetImage"
+    }
 }

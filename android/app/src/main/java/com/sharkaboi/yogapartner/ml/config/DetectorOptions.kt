@@ -6,6 +6,15 @@ import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
 
 object DetectorOptions {
+    // Multiplier to apply to the torso to get minimal body size. Picked this by experimentation.
+    /** [PoseEmbeddingUtils] */
+    const val torsoEmbeddingMultiplier = 2.5f
+
+    // These thresholds can be tuned in conjunction with the Top K values in {@link PoseClassifier}.
+    // The default Top K value is 10 so the range here is [0-10].
+    const val poseEnteredConfidenceThreshold = 6f
+    const val poseExitedConfidenceThreshold = 4f
+
     private val useAccurate = true
     private val preferGPU = true
 
@@ -81,6 +90,11 @@ object DetectorOptions {
 
     @JvmStatic
     fun shouldShowOutLine(): Boolean {
+        return true
+    }
+
+    @JvmStatic
+    fun isMLImageEnabled(): Boolean {
         return true
     }
 }

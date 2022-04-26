@@ -5,10 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.ImageProxy
-import androidx.camera.core.Preview
+import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
@@ -20,13 +17,13 @@ import com.sharkaboi.yogapartner.common.extensions.observe
 import com.sharkaboi.yogapartner.common.extensions.showToast
 import com.sharkaboi.yogapartner.databinding.FragmentAsanaPoseBinding
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
-import com.sharkaboi.yogapartner.ml.interfaces.VisionImageProcessor
-import com.sharkaboi.yogapartner.ml.processor.PoseDetectorProcessor
-import com.sharkaboi.yogapartner.modules.asana_pose.camera.GraphicOverlay
+import com.sharkaboi.yogapartner.ml.detector.PoseDetectorProcessor
+import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.GraphicOverlay
 import com.sharkaboi.yogapartner.modules.asana_pose.vm.AsanaPoseViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
+@ExperimentalGetImage
 @AndroidEntryPoint
 class AsanaPoseFragment : Fragment(), CompoundButton.OnCheckedChangeListener {
     private var _binding: FragmentAsanaPoseBinding? = null
@@ -39,7 +36,7 @@ class AsanaPoseFragment : Fragment(), CompoundButton.OnCheckedChangeListener {
     private var cameraProvider: ProcessCameraProvider? = null
     private var previewUseCase: Preview? = null
     private var analysisUseCase: ImageAnalysis? = null
-    private var imageProcessor: VisionImageProcessor? = null
+    private var imageProcessor: PoseDetectorProcessor? = null
     private var needUpdateGraphicOverlayImageSourceInfo = false
     private var lensFacing = CameraSelector.LENS_FACING_FRONT
     private var cameraSelector: CameraSelector? = null
@@ -142,7 +139,7 @@ class AsanaPoseFragment : Fragment(), CompoundButton.OnCheckedChangeListener {
         }
         previewUseCase = builder.build()
         previewUseCase!!.setSurfaceProvider(previewView.surfaceProvider)
-        cameraProvider!!.bindToLifecycle(/* lifecycleOwner= */ this,
+        cameraProvider!!.bindToLifecycle(/* lifecycleOwner= */ viewLifecycleOwner,
             cameraSelector!!,
             previewUseCase
         )
@@ -223,7 +220,7 @@ class AsanaPoseFragment : Fragment(), CompoundButton.OnCheckedChangeListener {
                 }
             }
         )
-        cameraProvider!!.bindToLifecycle(/* lifecycleOwner= */ this,
+        cameraProvider!!.bindToLifecycle(/* lifecycleOwner= */ viewLifecycleOwner,
             cameraSelector!!,
             analysisUseCase
         )

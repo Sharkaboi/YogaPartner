@@ -2,7 +2,6 @@
 
 package com.sharkaboi.yogapartner.ml.classification;
 
-import static com.sharkaboi.yogapartner.ml.classification.PoseEmbedding.getPoseEmbedding;
 import static com.sharkaboi.yogapartner.ml.utils.PointF3DUtils.maxAbs;
 import static com.sharkaboi.yogapartner.ml.utils.PointF3DUtils.multiply;
 import static com.sharkaboi.yogapartner.ml.utils.PointF3DUtils.multiplyAll;
@@ -16,13 +15,15 @@ import com.google.mlkit.vision.common.PointF3D;
 import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseLandmark;
 import com.sharkaboi.yogapartner.ml.models.ClassificationResult;
+import com.sharkaboi.yogapartner.ml.models.TrainedPoseSample;
+import com.sharkaboi.yogapartner.ml.utils.PoseEmbeddingUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 
 /**
- * Classifies {link Pose} based on given {@link PoseSample}s.
+ * Classifies {link Pose} based on given {@link TrainedPoseSample}s.
  *
  * <p>Inspired by K-Nearest Neighbors Algorithm with outlier filtering.
  * https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm
@@ -33,18 +34,18 @@ public class PoseClassifier {
   // Note Z has a lower weight as it is generally less accurate than X & Y.
   private static final PointF3D AXES_WEIGHTS = PointF3D.from(1, 1, 0.2f);
 
-  private final List<PoseSample> poseSamples;
+  private final List<TrainedPoseSample> trainedPoseSamples;
   private final int maxDistanceTopK;
   private final int meanDistanceTopK;
   private final PointF3D axesWeights;
 
-  public PoseClassifier(List<PoseSample> poseSamples) {
-    this(poseSamples, MAX_DISTANCE_TOP_K, MEAN_DISTANCE_TOP_K, AXES_WEIGHTS);
+  public PoseClassifier(List<TrainedPoseSample> trainedPoseSamples) {
+    this(trainedPoseSamples, MAX_DISTANCE_TOP_K, MEAN_DISTANCE_TOP_K, AXES_WEIGHTS);
   }
 
-  public PoseClassifier(List<PoseSample> poseSamples, int maxDistanceTopK,
-      int meanDistanceTopK, PointF3D axesWeights) {
-    this.poseSamples = poseSamples;
+  public PoseClassifier(List<TrainedPoseSample> trainedPoseSamples, int maxDistanceTopK,
+                        int meanDistanceTopK, PointF3D axesWeights) {
+    this.trainedPoseSamples = trainedPoseSamples;
     this.maxDistanceTopK = maxDistanceTopK;
     this.meanDistanceTopK = meanDistanceTopK;
     this.axesWeights = axesWeights;
@@ -61,7 +62,7 @@ public class PoseClassifier {
   /**
    * Returns the max range of confidence values.
    *
-   * <p><Since we calculate confidence by counting {@link PoseSample}s that survived
+   * <p><Since we calculate confidence by counting {@link TrainedPoseSample}s that survived
    * outlier-filtering by maxDistanceTopK and meanDistanceTopK, this range is the minimum of two.
    */
   public int confidenceRange() {
@@ -83,8 +84,8 @@ public class PoseClassifier {
     List<PointF3D> flippedLandmarks = new ArrayList<>(landmarks);
     multiplyAll(flippedLandmarks, PointF3D.from(-1, 1, 1));
 
-    List<PointF3D> embedding = getPoseEmbedding(landmarks);
-    List<PointF3D> flippedEmbedding = getPoseEmbedding(flippedLandmarks);
+    List<PointF3D> embedding = PoseEmbeddingUtils.getPoseEmbedding(landmarks);
+    List<PointF3D> flippedEmbedding = PoseEmbeddingUtils.getPoseEmbedding(flippedLandmarks);
 
 
     // Classification is done in two stages:
@@ -94,11 +95,11 @@ public class PoseClassifier {
     //    that are closest by average.
 
     // Keeps max distance on top so we can pop it when top_k size is reached.
-    PriorityQueue<Pair<PoseSample, Float>> maxDistances = new PriorityQueue<>(
+    PriorityQueue<Pair<TrainedPoseSample, Float>> maxDistances = new PriorityQueue<>(
         maxDistanceTopK, (o1, o2) -> -Float.compare(o1.second, o2.second));
     // Retrieve top K poseSamples by least distance to remove outliers.
-    for (PoseSample poseSample : poseSamples) {
-      List<PointF3D> sampleEmbedding = poseSample.getEmbedding();
+    for (TrainedPoseSample trainedPoseSample : trainedPoseSamples) {
+      List<PointF3D> sampleEmbedding = trainedPoseSample.getEmbedding();
 
       float originalMax = 0;
       float flippedMax = 0;
@@ -115,7 +116,7 @@ public class PoseClassifier {
                         subtract(flippedEmbedding.get(i), sampleEmbedding.get(i)), axesWeights)));
       }
       // Set the max distance as min of original and flipped max distance.
-      maxDistances.add(new Pair<>(poseSample, min(originalMax, flippedMax)));
+      maxDistances.add(new Pair<>(trainedPoseSample, min(originalMax, flippedMax)));
       // We only want to retain top n so pop the highest distance.
       if (maxDistances.size() > maxDistanceTopK) {
         maxDistances.poll();
@@ -123,12 +124,12 @@ public class PoseClassifier {
     }
 
     // Keeps higher mean distances on top so we can pop it when top_k size is reached.
-    PriorityQueue<Pair<PoseSample, Float>> meanDistances = new PriorityQueue<>(
+    PriorityQueue<Pair<TrainedPoseSample, Float>> meanDistances = new PriorityQueue<>(
         meanDistanceTopK, (o1, o2) -> -Float.compare(o1.second, o2.second));
     // Retrive top K poseSamples by least mean distance to remove outliers.
-    for (Pair<PoseSample, Float> sampleDistances : maxDistances) {
-      PoseSample poseSample = sampleDistances.first;
-      List<PointF3D> sampleEmbedding = poseSample.getEmbedding();
+    for (Pair<TrainedPoseSample, Float> sampleDistances : maxDistances) {
+      TrainedPoseSample trainedPoseSample = sampleDistances.first;
+      List<PointF3D> sampleEmbedding = trainedPoseSample.getEmbedding();
 
       float originalSum = 0;
       float flippedSum = 0;
@@ -140,14 +141,14 @@ public class PoseClassifier {
       }
       // Set the mean distance as min of original and flipped mean distances.
       float meanDistance = min(originalSum, flippedSum) / (embedding.size() * 2);
-      meanDistances.add(new Pair<>(poseSample, meanDistance));
+      meanDistances.add(new Pair<>(trainedPoseSample, meanDistance));
       // We only want to retain top k so pop the highest mean distance.
       if (meanDistances.size() > meanDistanceTopK) {
         meanDistances.poll();
       }
     }
 
-    for (Pair<PoseSample, Float> sampleDistances : meanDistances) {
+    for (Pair<TrainedPoseSample, Float> sampleDistances : meanDistances) {
       String className = sampleDistances.first.getClassName();
       result.incrementClassConfidence(className);
     }
