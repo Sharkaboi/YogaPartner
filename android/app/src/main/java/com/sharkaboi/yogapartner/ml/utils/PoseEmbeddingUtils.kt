@@ -34,7 +34,6 @@ object PoseEmbeddingUtils {
     // Translation normalization should've been done prior to calling this method.
     private fun getPoseSize(landmarks: List<PointF3D>): Float {
         // Note: This approach uses only 2D landmarks to compute pose size as using Z wasn't helpful
-        // in our experimentation but you're welcome to tweak.
         val hipsCenter = PointF3DUtils.average(
             landmarks[PoseLandmark.LEFT_HIP], landmarks[PoseLandmark.RIGHT_HIP]
         )
@@ -44,7 +43,7 @@ object PoseEmbeddingUtils {
         )
         val torsoSize = PointF3DUtils.l2Norm2D(PointF3DUtils.subtract(hipsCenter, shouldersCenter))
         var maxDistance = torsoSize * TORSO_MULTIPLIER
-        // torsoSize * TORSO_MULTIPLIER is the floor we want based on experimentation but actual size
+        // torsoSize * TORSO_MULTIPLIER is the floor we want but actual size
         // can be bigger for a given pose depending on extension of limbs etc so we calculate that.
         for (landmark in landmarks) {
             val distance = PointF3DUtils.l2Norm2D(PointF3DUtils.subtract(hipsCenter, landmark))
@@ -59,10 +58,9 @@ object PoseEmbeddingUtils {
         val embedding: ArrayList<PointF3D> = ArrayList()
 
         // We use several pairwise 3D distances to form pose embedding. These were selected
-        // based on experimentation for best results with our default pose classes as captued in the
-        // pose samples csv. Feel free to play with this and add or remove for your use-cases.
+        // based on experimentation for best results
 
-        // We group our distances by number of joints between the pairs.
+        // Group our distances by number of joints between the pairs.
         // One joint.
         embedding.add(
             PointF3DUtils.subtract(
