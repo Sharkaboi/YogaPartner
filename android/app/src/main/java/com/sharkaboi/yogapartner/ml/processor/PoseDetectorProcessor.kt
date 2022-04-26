@@ -95,17 +95,17 @@ class PoseDetectorProcessor(
   }
 
   override fun onSuccess(
-    poseWithClassification: PoseWithClassification,
+    results: PoseWithClassification,
     graphicOverlay: GraphicOverlay
   ) {
     graphicOverlay.add(
       PoseGraphic(
         graphicOverlay,
-        poseWithClassification.pose,
+        results.pose,
         showInFrameLikelihood,
         visualizeZ,
         rescaleZForVisualization,
-        poseWithClassification.classificationResult
+        results.classificationResult
       )
     )
   }
