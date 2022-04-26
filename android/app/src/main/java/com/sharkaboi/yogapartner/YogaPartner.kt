@@ -1,10 +1,12 @@
 package com.sharkaboi.yogapartner
 
+import androidx.camera.core.ExperimentalGetImage
 import androidx.multidex.MultiDexApplication
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 
 @HiltAndroidApp
+@ExperimentalGetImage
 class YogaPartner : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
