@@ -173,7 +173,7 @@ class LandmarkPointsAndInferenceGraphic internal constructor(
         canvas.drawCircle(translateX(point.x), translateY(point.y), DOT_RADIUS, paint)
     }
 
-    internal fun drawLine(
+    private fun drawLine(
         canvas: Canvas,
         startLandmark: PoseLandmark?,
         endLandmark: PoseLandmark?,
