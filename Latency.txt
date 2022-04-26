@@ -1,4 +1,4 @@
-Accurate, GPU, 1min :
+Accurate, CPU_GPU, 1min :
 
 1st try:
 50 runs
