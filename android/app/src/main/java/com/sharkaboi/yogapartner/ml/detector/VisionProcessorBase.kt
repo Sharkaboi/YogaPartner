@@ -15,7 +15,6 @@ import com.google.android.odml.image.MlImage
 import com.google.mlkit.vision.common.InputImage
 import com.sharkaboi.yogapartner.common.extensions.showToast
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
-import com.sharkaboi.yogapartner.ml.interfaces.VisionImageProcessor
 import com.sharkaboi.yogapartner.ml.models.FrameMetadata
 import com.sharkaboi.yogapartner.ml.utils.BitmapUtils
 import com.sharkaboi.yogapartner.modules.asana_pose.camera.GraphicOverlay
@@ -34,7 +33,7 @@ import java.util.*
  *
  * @param <T> The type of the detected feature.
  */
-abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
+abstract class VisionProcessorBase<T>(context: Context) {
     private var activityManager: ActivityManager =
         context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
     private val fpsTimer = Timer()
@@ -83,7 +82,7 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
 
     // -----------------Code for processing live preview frame from CameraX API-----------------------
     @ExperimentalGetImage
-    override fun processImageProxy(image: ImageProxy, graphicOverlay: GraphicOverlay) {
+    fun processImageProxy(image: ImageProxy, graphicOverlay: GraphicOverlay) {
         val frameStartMs = SystemClock.elapsedRealtime()
         if (isShutdown) {
             image.close()
@@ -251,7 +250,7 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
             )
     }
 
-    override fun stop() {
+    open fun stop() {
         executor.shutdown()
         isShutdown = true
         resetLatencyStats()
