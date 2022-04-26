@@ -16,13 +16,12 @@ import android.net.Uri;
 import android.os.Build.VERSION_CODES;
 import android.provider.MediaStore;
 import androidx.annotation.Nullable;
-import android.util.Log;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageProxy;
 import androidx.exifinterface.media.ExifInterface;
 
-import com.sharkaboi.yogapartner.ml.models.FrameMetadata;
+import com.sharkaboi.yogapartner.ml.models.BitmapFrameMetadata;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -36,7 +35,7 @@ public class BitmapUtils {
 
   /** Converts NV21 format byte buffer to bitmap. */
   @Nullable
-  public static Bitmap getBitmap(ByteBuffer data, FrameMetadata metadata) {
+  public static Bitmap getBitmap(ByteBuffer data, BitmapFrameMetadata metadata) {
     data.rewind();
     byte[] imageInBuffer = new byte[data.limit()];
     data.get(imageInBuffer, 0, imageInBuffer.length);
@@ -61,8 +60,8 @@ public class BitmapUtils {
   @Nullable
   @ExperimentalGetImage
   public static Bitmap getBitmap(ImageProxy image) {
-    FrameMetadata frameMetadata =
-        new FrameMetadata.Builder()
+    BitmapFrameMetadata bitmapFrameMetadata =
+        new BitmapFrameMetadata.Builder()
             .setWidth(image.getWidth())
             .setHeight(image.getHeight())
             .setRotation(image.getImageInfo().getRotationDegrees())
@@ -70,7 +69,7 @@ public class BitmapUtils {
 
     ByteBuffer nv21Buffer =
         yuv420ThreePlanesToNV21(image.getImage().getPlanes(), image.getWidth(), image.getHeight());
-    return getBitmap(nv21Buffer, frameMetadata);
+    return getBitmap(nv21Buffer, bitmapFrameMetadata);
   }
 
   /** Rotates a bitmap if it is converted from a bytebuffer. */
