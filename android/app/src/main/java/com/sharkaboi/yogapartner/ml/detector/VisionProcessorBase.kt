@@ -4,7 +4,6 @@ import android.app.ActivityManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.SystemClock
-import androidx.annotation.GuardedBy
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
 import com.google.android.gms.tasks.OnSuccessListener
@@ -15,7 +14,6 @@ import com.google.android.odml.image.MlImage
 import com.google.mlkit.vision.common.InputImage
 import com.sharkaboi.yogapartner.common.extensions.showToast
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
-import com.sharkaboi.yogapartner.ml.models.FrameMetadata
 import com.sharkaboi.yogapartner.ml.utils.BitmapUtils
 import com.sharkaboi.yogapartner.modules.asana_pose.camera.GraphicOverlay
 import com.sharkaboi.yogapartner.modules.asana_pose.camera.InferenceInfoGraphic
@@ -23,7 +21,6 @@ import com.sharkaboi.yogapartner.modules.asana_pose.ui.CameraImageGraphic
 import timber.log.Timber
 import java.lang.Math.max
 import java.lang.Math.min
-import java.nio.ByteBuffer
 import java.util.*
 
 /**
@@ -54,18 +51,6 @@ abstract class VisionProcessorBase<T>(context: Context) {
     // Frame count that have been processed so far in an one second interval to calculate FPS.
     private var frameProcessedInOneSecondInterval = 0
     private var framesPerSecond = 0
-
-    // To keep the latest images and its metadata.
-    @GuardedBy("this")
-    private var latestImage: ByteBuffer? = null
-    @GuardedBy("this")
-    private var latestImageMetaData: FrameMetadata? = null
-
-    // To keep the images and metadata in process.
-    @GuardedBy("this")
-    private var processingImage: ByteBuffer? = null
-    @GuardedBy("this")
-    private var processingMetaData: FrameMetadata? = null
 
     init {
         fpsTimer.scheduleAtFixedRate(
