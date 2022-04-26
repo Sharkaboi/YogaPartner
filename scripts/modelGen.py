@@ -20,11 +20,11 @@ from mediapipe.python.solutions import pose as mp_pose
 #       ...
 #     ...
 version = 1
-images_in_folder = 'A:\Projects\CollegeProjects\FinalYearProject\YogaPartner\data\v' + version
+images_in_folder = 'A:\Projects\CollegeProjects\FinalYearProject\YogaPartner\data\\v' + str(version)
 
 # Output folders for bootstrapped images and CSVs. Image will have a predicted
 # Pose rendering and can be used to remove unwanted samples.
-images_out_folder = 'A:\Projects\CollegeProjects\FinalYearProject\YogaPartner\intermediates\v' + version +'\data_out'
+images_out_folder = 'A:\Projects\CollegeProjects\FinalYearProject\YogaPartner\intermediates\\v' + str(version) +'\data_out'
 
 # Output CSV path to put bootstrapped poses to. This CSV will be used by the app.
 #
@@ -32,7 +32,7 @@ images_out_folder = 'A:\Projects\CollegeProjects\FinalYearProject\YogaPartner\in
 #   sample_00001,pose_class_1,x1,y1,z1,x2,y2,z2,...,x33,y33,z33
 #   sample_00002,pose_class_2,x1,y1,z1,x2,y2,z2,...,x33,y33,z33
 #   ...
-csv_out_path = 'A:\Projects\CollegeProjects\FinalYearProject\YogaTest\intermediates\v' + version +'\data_out.csv'
+csv_out_path = 'A:\Projects\CollegeProjects\FinalYearProject\YogaPartner\intermediates\\v' + str(version) +'\data_out.csv'
 
 def getClasses() :
     # Folder names are used as pose class names.

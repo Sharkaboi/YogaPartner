@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 
 version = 1
-path = "A:\Projects\CollegeProjects\FinalYearProject\YogaPartner\data\v" + version
+path = "A:\Projects\CollegeProjects\FinalYearProject\YogaPartner\data\\v" + str(version)
 folders = os.listdir(path)
 for f in folders:
     old_path = os.path.join(path, f)
