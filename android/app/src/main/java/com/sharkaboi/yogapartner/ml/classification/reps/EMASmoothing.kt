@@ -1,4 +1,4 @@
-package com.sharkaboi.yogapartner.ml.classification
+package com.sharkaboi.yogapartner.ml.classification.reps
 
 import android.os.SystemClock
 import com.sharkaboi.yogapartner.ml.models.ClassificationResult

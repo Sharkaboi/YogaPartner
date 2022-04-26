@@ -12,6 +12,8 @@ import androidx.annotation.WorkerThread;
 import com.google.common.base.Preconditions;
 import com.google.mlkit.vision.pose.Pose;
 import com.sharkaboi.yogapartner.R;
+import com.sharkaboi.yogapartner.ml.classification.reps.EMASmoothing;
+import com.sharkaboi.yogapartner.ml.classification.reps.RepetitionCounter;
 import com.sharkaboi.yogapartner.ml.models.ClassificationResult;
 
 import java.io.BufferedReader;
