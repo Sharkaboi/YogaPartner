@@ -142,7 +142,7 @@ class AsanaPoseFragment : Fragment(), CompoundButton.OnCheckedChangeListener {
         }
         previewUseCase = builder.build()
         previewUseCase!!.setSurfaceProvider(previewView.surfaceProvider)
-        cameraProvider!!.bindToLifecycle(/* lifecycleOwner= */ this,
+        cameraProvider!!.bindToLifecycle(/* lifecycleOwner= */ viewLifecycleOwner,
             cameraSelector!!,
             previewUseCase
         )
@@ -223,7 +223,7 @@ class AsanaPoseFragment : Fragment(), CompoundButton.OnCheckedChangeListener {
                 }
             }
         )
-        cameraProvider!!.bindToLifecycle(/* lifecycleOwner= */ this,
+        cameraProvider!!.bindToLifecycle(/* lifecycleOwner= */ viewLifecycleOwner,
             cameraSelector!!,
             analysisUseCase
         )
