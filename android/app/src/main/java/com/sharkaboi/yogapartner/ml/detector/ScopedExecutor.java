@@ -1,6 +1,6 @@
 
 
-package com.sharkaboi.yogapartner.ml.processor;
+package com.sharkaboi.yogapartner.ml.detector;
 
 import androidx.annotation.NonNull;
 import java.util.concurrent.Executor;

@@ -1,4 +1,4 @@
-package com.sharkaboi.yogapartner.ml.processor
+package com.sharkaboi.yogapartner.ml.detector
 
 import android.content.Context
 import com.google.android.gms.tasks.Task

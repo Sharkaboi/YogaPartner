@@ -21,7 +21,7 @@ import com.sharkaboi.yogapartner.common.extensions.showToast
 import com.sharkaboi.yogapartner.databinding.FragmentAsanaPoseBinding
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
 import com.sharkaboi.yogapartner.ml.interfaces.VisionImageProcessor
-import com.sharkaboi.yogapartner.ml.processor.PoseDetectorProcessor
+import com.sharkaboi.yogapartner.ml.detector.PoseDetectorProcessor
 import com.sharkaboi.yogapartner.modules.asana_pose.camera.GraphicOverlay
 import com.sharkaboi.yogapartner.modules.asana_pose.vm.AsanaPoseViewModel
 import dagger.hilt.android.AndroidEntryPoint
