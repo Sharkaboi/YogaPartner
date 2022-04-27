@@ -54,6 +54,7 @@ object PoseEmbeddingUtils {
         return maxDistance
     }
 
+    // 23 embeddings
     private fun getEmbedding(lm: List<PointF3D>): List<PointF3D> {
         val embedding: ArrayList<PointF3D> = ArrayList()
 
@@ -61,7 +62,7 @@ object PoseEmbeddingUtils {
         // based on experimentation for best results
 
         // Group our distances by number of joints between the pairs.
-        // One joint.
+        // One joint. - (9)
         embedding.add(
             PointF3DUtils.subtract(
                 PointF3DUtils.average(lm[PoseLandmark.LEFT_HIP], lm[PoseLandmark.RIGHT_HIP]),
@@ -113,7 +114,7 @@ object PoseEmbeddingUtils {
             )
         )
 
-        // Two joints.
+        // Two joints. (4)
         embedding.add(
             PointF3DUtils.subtract(
                 lm[PoseLandmark.LEFT_SHOULDER], lm[PoseLandmark.LEFT_WRIST]
@@ -137,7 +138,7 @@ object PoseEmbeddingUtils {
             )
         )
 
-        // Four joints.
+        // Four joints. (2)
         embedding.add(
             PointF3DUtils.subtract(
                 lm[PoseLandmark.LEFT_HIP],
@@ -151,7 +152,7 @@ object PoseEmbeddingUtils {
             )
         )
 
-        // Five joints.
+        // Five joints. (4)
         embedding.add(
             PointF3DUtils.subtract(
                 lm[PoseLandmark.LEFT_SHOULDER], lm[PoseLandmark.LEFT_ANKLE]
@@ -175,7 +176,7 @@ object PoseEmbeddingUtils {
             )
         )
 
-        // Cross body.
+        // Cross body. (4)
         embedding.add(
             PointF3DUtils.subtract(
                 lm[PoseLandmark.LEFT_ELBOW],
