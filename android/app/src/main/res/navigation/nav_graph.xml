@@ -17,7 +17,21 @@
         android:label="fragment_asana_list"
         tools:layout="@layout/fragment_asana_list" />
 
+    <fragment
+        android:id="@+id/asanaInfoFragment"
+        android:name="com.sharkaboi.yogapartner.modules.asana_info.ui.AsanaInfoFragment"
+        android:label="fragment_asana_info"
+        tools:layout="@layout/fragment_asana_info">
+        <argument
+            android:name="asana"
+            app:argType="com.sharkaboi.yogapartner.data.models.Asana" />
+    </fragment>
+
     <action
         android:id="@+id/openAsanaPose"
         app:destination="@id/asanaPoseFragment" />
+
+    <action
+        android:id="@+id/openAsanaDetails"
+        app:destination="@id/asanaInfoFragment" />
 </navigation>
