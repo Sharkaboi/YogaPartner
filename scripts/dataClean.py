@@ -2,7 +2,7 @@ import os
 import re
 from pathlib import Path
 
-version = 1
+version = 2
 path = "A:\Projects\CollegeProjects\FinalYearProject\YogaPartner\data\\v" + str(version)
 folders = os.listdir(path)
 for f in folders:
