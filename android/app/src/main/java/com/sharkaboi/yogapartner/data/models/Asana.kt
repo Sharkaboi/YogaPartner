@@ -13,9 +13,7 @@ data class Asana(
     val asanaType: AsanaType,
     val asanaThumbnail: String,
     val nameSanskrit: String,
-    val nameEn: String,
-    val bodyParts: List<BodyPart>,
-    val instructions: List<String>
+    val nameEn: String
 ) : Parcelable {
     fun getDbValue() = buildMap {
         put("asana_name", name)
@@ -25,8 +23,6 @@ data class Asana(
         put("asana_thumbnail", asanaThumbnail)
         put("asana_name_sanskrit", nameSanskrit)
         put("asana_name_en", nameEn)
-        put("asana_body_parts", bodyParts.getDbValue())
-        put("asana_instruction_images", instructions)
     }
 
     companion object {
@@ -39,9 +35,7 @@ data class Asana(
                 asanaType = AsanaType.parseFromDb(document["asana_type"].toString()),
                 asanaThumbnail = document["asana_thumbnail"].toString(),
                 nameSanskrit = document["asana_name_sanskrit"].toString(),
-                nameEn = document["asana_name_en"].toString(),
-                bodyParts = BodyPart.parseList(document["asana_body_parts"] as List<String>),
-                instructions = document["asana_instruction_images"] as List<String>,
+                nameEn = document["asana_name_en"].toString()
             )
         }
 
