@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/asanaListFragment">
+    app:startDestination="@id/startFragment">
 
     <fragment
         android:id="@+id/asanaPoseFragment"
@@ -34,4 +34,32 @@
     <action
         android:id="@+id/openAsanaDetails"
         app:destination="@id/asanaInfoFragment" />
+
+    <fragment
+        android:id="@+id/startFragment"
+        android:name="com.sharkaboi.yogapartner.modules.start.StartFragment"
+        android:label="fragment_start"
+        tools:layout="@layout/fragment_start">
+        <action
+            android:id="@+id/openMain"
+            app:destination="@id/asanaListFragment"
+            app:popUpTo="@+id/startFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/openAuth"
+            app:destination="@id/authFragment"
+            app:popUpTo="@+id/startFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/authFragment"
+        android:name="com.sharkaboi.yogapartner.modules.auth.ui.AuthFragment"
+        android:label="fragment_auth"
+        tools:layout="@layout/fragment_auth">
+        <action
+            android:id="@+id/openMain"
+            app:destination="@id/asanaListFragment"
+            app:popUpTo="@+id/authFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
 </navigation>

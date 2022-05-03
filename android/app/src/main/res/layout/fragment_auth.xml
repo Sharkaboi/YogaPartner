@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dark_black"
+    tools:context=".modules.auth.ui.AuthFragment">
+
+    <TextView
+        android:id="@+id/tvSignIn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="54dp"
+        android:fontFamily="@font/maven_pro_bold"
+        android:text="Sign In"
+        android:textAlignment="center"
+        android:textAllCaps="true"
+        android:textColor="@color/white"
+        android:textFontWeight="700"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/btnSignIn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.3"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSignIn"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="54dp"
+        android:fontFamily="@font/maven_pro_bold"
+        android:text="Sign in with Google"
+        android:textColor="@color/dark_black"
+        android:textSize="16sp"
+        app:backgroundTint="@color/white"
+        app:cornerRadius="10dp"
+        app:icon="@drawable/ic_google"
+        app:iconTint="@null"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvSignIn" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
