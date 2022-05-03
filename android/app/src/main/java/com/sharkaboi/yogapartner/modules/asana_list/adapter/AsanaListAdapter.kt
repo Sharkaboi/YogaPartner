@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.size.Scale
 import coil.transform.RoundedCornersTransformation
-import com.google.android.material.chip.Chip
 import com.sharkaboi.yogapartner.data.models.Asana
 import com.sharkaboi.yogapartner.databinding.ItemAsanaBinding
 
@@ -60,15 +59,6 @@ class AsanaListAdapter(
                 scale(Scale.FILL)
                 transformations(RoundedCornersTransformation(8f))
             }
-            val difficultyChip = Chip(binding.root.context).apply {
-                text = item.difficulty.name
-            }
-            val asanaTypeChip = Chip(binding.root.context).apply {
-                text = item.asanaType.name
-            }
-            binding.cgTags.removeAllViews()
-            binding.cgTags.addView(difficultyChip)
-            binding.cgTags.addView(asanaTypeChip)
         }
     }
 }
