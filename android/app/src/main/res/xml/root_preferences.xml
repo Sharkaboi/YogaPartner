@@ -1,0 +1,6 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SwitchPreferenceCompat
+        app:key="showPose"
+        app:title="Show pose outline" />
+</PreferenceScreen>

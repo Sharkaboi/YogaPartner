@@ -133,7 +133,7 @@ class AsanaPoseFragment : Fragment() {
     }
 
     private fun bindPreviewUseCase() {
-        if (!DetectorOptions.isCameraLiveViewportEnabled()) {
+        if (!DetectorOptions.getInstance().isCameraLiveViewportEnabled()) {
             return
         }
 
@@ -146,7 +146,7 @@ class AsanaPoseFragment : Fragment() {
 
         val builder = Preview.Builder()
         val targetResolution =
-            DetectorOptions.getCameraXTargetResolution()
+            DetectorOptions.getInstance().getCameraXTargetResolution()
         if (targetResolution != null) {
             builder.setTargetResolution(targetResolution)
         }
@@ -167,11 +167,12 @@ class AsanaPoseFragment : Fragment() {
         }
 
         try {
-            val poseDetectorOptions = DetectorOptions.getOption()
-            val shouldShowInFrameLikelihood = DetectorOptions.inFrameLikelihood()
-            val visualizeZ = DetectorOptions.getVisualizeZ()
-            val rescaleZ = DetectorOptions.rescaleZForVisualization()
-            val runClassification = DetectorOptions.shouldPoseDetectionRunClassification()
+            val poseDetectorOptions = DetectorOptions.getInstance().getOption()
+            val shouldShowInFrameLikelihood = DetectorOptions.getInstance().inFrameLikelihood()
+            val visualizeZ = DetectorOptions.getInstance().getVisualizeZ()
+            val rescaleZ = DetectorOptions.getInstance().rescaleZForVisualization()
+            val runClassification =
+                DetectorOptions.getInstance().shouldPoseDetectionRunClassification()
             imageProcessor = PoseDetectorProcessor(
                 requireContext(),
                 poseDetectorOptions,
@@ -179,7 +180,7 @@ class AsanaPoseFragment : Fragment() {
                 visualizeZ,
                 rescaleZ,
                 runClassification,
-                /* isStreamMode = */ DetectorOptions.shouldShowReps()
+                /* isStreamMode = */ DetectorOptions.getInstance().shouldShowReps()
             )
         } catch (e: Exception) {
             Timber.d("Can not create image processor", e)
@@ -191,7 +192,7 @@ class AsanaPoseFragment : Fragment() {
 
         val builder = ImageAnalysis.Builder()
         val targetResolution =
-            DetectorOptions.getCameraXTargetResolution()
+            DetectorOptions.getInstance().getCameraXTargetResolution()
         if (targetResolution != null) {
             builder.setTargetResolution(targetResolution)
         }

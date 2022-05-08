@@ -24,6 +24,15 @@
             android:textAllCaps="true"
             android:textColor="@color/white"
             android:textSize="22sp" />
+
+        <ImageView
+            android:id="@+id/btnSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_margin="8dp"
+            app:srcCompat="@drawable/ic_setting"
+            app:tint="@null" />
     </com.google.android.material.appbar.MaterialToolbar>
 
     <com.google.android.material.textfield.TextInputLayout

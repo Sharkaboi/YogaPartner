@@ -1,9 +1,7 @@
 package com.sharkaboi.yogapartner.modules.asana_list.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
@@ -20,6 +18,7 @@ import com.sharkaboi.yogapartner.databinding.FragmentAsanaListBinding
 import com.sharkaboi.yogapartner.modules.asana_list.adapter.AsanaListAdapter
 import com.sharkaboi.yogapartner.modules.asana_list.vm.AsanaListViewModel
 import dagger.hilt.android.AndroidEntryPoint
+
 
 @AndroidEntryPoint
 class AsanaListFragment : Fragment() {
@@ -51,6 +50,11 @@ class AsanaListFragment : Fragment() {
         setListeners()
         setupRecyclerView()
         setupObservers()
+    }
+
+    private fun openSettings() {
+        val destinations = NavGraphDirections.openSettings()
+        navController.navigate(destinations)
     }
 
     private fun setupObservers() {
@@ -97,6 +101,7 @@ class AsanaListFragment : Fragment() {
 
             viewModel.search(text.toString())
         }
+        binding.btnSettings.setOnClickListener { openSettings() }
     }
 
     private fun checkPermission() {

@@ -31,6 +31,15 @@
         android:id="@+id/openAsanaPose"
         app:destination="@id/asanaPoseFragment" />
 
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.sharkaboi.yogapartner.modules.settings.SettingsFragment"
+        android:label="settings" />
+
+    <action
+        android:id="@+id/openSettings"
+        app:destination="@id/settingsFragment" />
+
     <action
         android:id="@+id/openAsanaDetails"
         app:destination="@id/asanaInfoFragment" />
@@ -51,6 +60,7 @@
             app:popUpTo="@+id/startFragment"
             app:popUpToInclusive="true" />
     </fragment>
+
     <fragment
         android:id="@+id/authFragment"
         android:name="com.sharkaboi.yogapartner.modules.auth.ui.AuthFragment"

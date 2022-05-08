@@ -52,7 +52,7 @@ class LandmarkPointsAndInferenceGraphic internal constructor(
             return
         }
 
-        if (!DetectorOptions.shouldShowOutLine()) {
+        if (!DetectorOptions.getInstance().shouldShowOutLine()) {
             return
         }
         // Draw all the points

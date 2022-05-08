@@ -78,11 +78,11 @@ abstract class VisionProcessorBase<T>(context: Context) {
             return
         }
         var bitmap: Bitmap? = null
-        if (!DetectorOptions.isCameraLiveViewportEnabled()) {
+        if (!DetectorOptions.getInstance().isCameraLiveViewportEnabled()) {
             bitmap = BitmapUtils.getBitmap(image)
         }
 
-        if (DetectorOptions.isMLImageEnabled()) {
+        if (DetectorOptions.getInstance().isMLImageEnabled()) {
             val mlImage =
                 MediaMlImageBuilder(image.image!!).setRotation(image.imageInfo.rotationDegrees)
                     .build()
@@ -223,7 +223,7 @@ abstract class VisionProcessorBase<T>(context: Context) {
 //                        )
                     }
                     this@VisionProcessorBase.onSuccess(results, graphicOverlay, onInference)
-                    if (!DetectorOptions.shouldHideDetectionInfo()) {
+                    if (!DetectorOptions.getInstance().shouldHideDetectionInfo()) {
                         graphicOverlay.add(
                             FpsInfoGraphic(
                                 graphicOverlay,

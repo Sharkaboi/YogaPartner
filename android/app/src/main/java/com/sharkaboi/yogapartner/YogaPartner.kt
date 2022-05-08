@@ -2,6 +2,7 @@ package com.sharkaboi.yogapartner
 
 import androidx.camera.core.ExperimentalGetImage
 import androidx.multidex.MultiDexApplication
+import com.sharkaboi.yogapartner.ml.config.DetectorOptions
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 
@@ -15,5 +16,6 @@ class YogaPartner : MultiDexApplication() {
                 super.log(priority, "shark_log_$tag", message, t)
             }
         })
+        DetectorOptions.init(this)
     }
 }

@@ -15,13 +15,13 @@ class FpsInfoGraphic(
     private val framesPerSecond: Int?
 ) : Graphic(overlay) {
     private val textPaint: Paint = Paint()
-    private var showLatencyInfo = DetectorOptions.shouldShowLatencyInfo()
+    private var showLatencyInfo = DetectorOptions.getInstance().shouldShowLatencyInfo()
 
     @Synchronized
     override fun draw(canvas: Canvas) {
         val x = TEXT_SIZE * 0.5f
         val y = TEXT_SIZE * 1.5f
-        if (DetectorOptions.shouldShowInputImageSize()) {
+        if (DetectorOptions.getInstance().shouldShowInputImageSize()) {
             canvas.drawText(
                 "InputImage size: " + overlay.imageHeight + "x" + overlay.imageWidth,
                 x,

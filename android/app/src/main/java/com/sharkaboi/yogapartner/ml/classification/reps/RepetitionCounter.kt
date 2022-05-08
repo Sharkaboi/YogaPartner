@@ -36,7 +36,7 @@ class RepetitionCounter @JvmOverloads constructor(
     }
 
     companion object {
-        private const val DEFAULT_ENTER_THRESHOLD = DetectorOptions.poseEnteredConfidenceThreshold
-        private const val DEFAULT_EXIT_THRESHOLD = DetectorOptions.poseExitedConfidenceThreshold
+        private val DEFAULT_ENTER_THRESHOLD = DetectorOptions.getInstance().poseEnteredConfidenceThreshold
+        private val DEFAULT_EXIT_THRESHOLD = DetectorOptions.getInstance().poseExitedConfidenceThreshold
     }
 }
