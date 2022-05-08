@@ -82,6 +82,7 @@ class AsanaPoseFragment : Fragment() {
 
     private fun initListeners() {
         binding.btnSwitchCamera.setOnClickListener { switchCamera() }
+        binding.toolbar.setNavigationOnClickListener { navController.navigateUp() }
     }
 
     private fun initObservers() {
