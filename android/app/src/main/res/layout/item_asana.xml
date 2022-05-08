@@ -29,6 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:fontFamily="@font/maven_pro_bold"
+            android:textColor="@color/dark_black"
             android:textFontWeight="700"
             android:textSize="16sp"
             android:textStyle="bold"

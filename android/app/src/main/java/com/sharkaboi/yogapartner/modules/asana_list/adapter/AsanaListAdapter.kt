@@ -53,6 +53,9 @@ class AsanaListAdapter(
             binding.root.setOnClickListener {
                 onClick(item)
             }
+            binding.btnSeeDetails.setOnClickListener {
+                onClick(item)
+            }
 
             binding.tvName.text = item.name
             binding.ivThumbnail.load(item.asanaThumbnail) {

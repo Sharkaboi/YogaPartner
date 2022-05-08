@@ -18,7 +18,7 @@ constructor(
     private val asanaListRepository: AsanaListRepository
 ) : ViewModel() {
 
-    private val _isLoading = MutableLiveData<Boolean>(false)
+    private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
     private val _errors = MutableLiveData<String>()
@@ -27,7 +27,7 @@ constructor(
     private val _asanaList = MutableLiveData<List<Asana>>(emptyList())
     val asanaList: LiveData<List<Asana>> = _asanaList
 
-    private val _currentList = MutableLiveData<List<Asana>>(emptyList())
+    private val _currentList = MutableLiveData<List<Asana>>()
     val currentList: LiveData<List<Asana>> = _currentList
 
     init {

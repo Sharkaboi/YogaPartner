@@ -1,6 +1,10 @@
 package com.sharkaboi.yogapartner.modules.asana_info.ui
 
+import android.graphics.Color
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +14,8 @@ import androidx.navigation.fragment.navArgs
 import coil.load
 import coil.size.Scale
 import coil.transform.RoundedCornersTransformation
+import com.sharkaboi.yogapartner.common.extensions.capitalizeFirst
+import com.sharkaboi.yogapartner.data.models.AsanaDifficulty
 import com.sharkaboi.yogapartner.databinding.FragmentAsanaInfoBinding
 
 class AsanaInfoFragment : Fragment() {
@@ -46,6 +52,32 @@ class AsanaInfoFragment : Fragment() {
         }
         binding.tvDesc.text = args.asana.description
         binding.tvName.text = args.asana.name
-        binding.tvDifficulty.text = ("Difficulty : ${args.asana.difficulty.name}")
+        setDifficultySpan()
+    }
+
+    private fun setDifficultySpan() {
+        val prefix = "Difficulty : "
+        val difficultyText = "$prefix${args.asana.difficulty.name.capitalizeFirst()}"
+        val spannableString = SpannableString(difficultyText)
+        val whiteSpan = ForegroundColorSpan(Color.WHITE)
+        val greenSpan = ForegroundColorSpan(Color.GREEN)
+        val yellowSpan = ForegroundColorSpan(Color.YELLOW)
+        val redSpan = ForegroundColorSpan(Color.RED)
+        val blueSpan = ForegroundColorSpan(Color.BLUE)
+
+        val difficultyColor = when (args.asana.difficulty) {
+            AsanaDifficulty.UNKNOWN -> blueSpan
+            AsanaDifficulty.EASY -> greenSpan
+            AsanaDifficulty.MEDIUM -> yellowSpan
+            AsanaDifficulty.DIFFICULT -> redSpan
+        }
+        spannableString.setSpan(whiteSpan, 0, prefix.lastIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        spannableString.setSpan(
+            difficultyColor,
+            prefix.lastIndex,
+            spannableString.length,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        binding.tvDifficulty.text = spannableString
     }
 }
