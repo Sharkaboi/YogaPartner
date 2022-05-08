@@ -45,7 +45,7 @@ class PoseDetectorProcessor(
     }
 
     // For InputImage type
-    override fun detectInImage(image: InputImage): Task<PoseWithClassification> {
+    override fun detectInImage(image: InputImage, isLoading: (Boolean) -> Unit): Task<PoseWithClassification> {
         return detector
             .process(image)
             .continueWith(
@@ -55,12 +55,14 @@ class PoseDetectorProcessor(
                     var classificationResult: List<String> = ArrayList()
                     if (runClassification) {
                         if (poseClassifierProcessor == null) {
+                            isLoading(true)
                             poseClassifierProcessor =
                                 PoseClassifierProcessor(
                                     context,
                                     isStreamMode
                                 )
                         }
+                        isLoading(false)
                         classificationResult = poseClassifierProcessor!!.getPoseResult(pose)
                     }
                     PoseWithClassification(pose, classificationResult)
@@ -69,7 +71,10 @@ class PoseDetectorProcessor(
     }
 
     // For MlImage type
-    override fun detectInImage(image: MlImage): Task<PoseWithClassification> {
+    override fun detectInImage(
+        image: MlImage,
+        isLoading: (Boolean) -> Unit
+    ): Task<PoseWithClassification> {
         return detector
             .process(image)
             .continueWith(
@@ -79,12 +84,14 @@ class PoseDetectorProcessor(
                     var classificationResult: List<String> = ArrayList()
                     if (runClassification) {
                         if (poseClassifierProcessor == null) {
+                            isLoading(true)
                             poseClassifierProcessor =
                                 PoseClassifierProcessor(
                                     context,
                                     isStreamMode
                                 )
                         }
+                        isLoading(false)
                         classificationResult = poseClassifierProcessor!!.getPoseResult(pose)
                     }
                     PoseWithClassification(pose, classificationResult)
@@ -94,8 +101,10 @@ class PoseDetectorProcessor(
 
     override fun onSuccess(
         results: PoseWithClassification,
-        graphicOverlay: GraphicOverlay
+        graphicOverlay: GraphicOverlay,
+        onInference: (PoseWithClassification) -> Unit
     ) {
+        onInference(results)
         graphicOverlay.add(
             LandmarkPointsAndInferenceGraphic(
                 graphicOverlay,

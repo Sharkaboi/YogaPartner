@@ -40,12 +40,12 @@ object DetectorOptions {
 
     @JvmStatic
     fun isCameraLiveViewportEnabled(): Boolean {
-        return false
+        return true
     }
 
     @JvmStatic
     fun shouldHideDetectionInfo(): Boolean {
-        return false
+        return true
     }
 
     @JvmStatic

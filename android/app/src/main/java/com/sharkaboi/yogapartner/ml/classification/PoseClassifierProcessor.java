@@ -227,13 +227,9 @@ public class PoseClassifierProcessor {
         // Add maxConfidence class of current frame to result if pose is found.
         if (!pose.getAllPoseLandmarks().isEmpty()) {
             PoseClass maxConfidenceClass = classification.getMaxConfidenceClass();
-            String maxConfidenceClassResult = String.format(
-                    Locale.US,
-                    "%s : %.2f confidence",
-                    maxConfidenceClass.getFormattedString(),
-                    classification.getClassConfidence(maxConfidenceClass)
-                            / poseClassifier.confidenceRange());
-            result.add(maxConfidenceClassResult);
+            float confidence = classification.getClassConfidence(maxConfidenceClass)
+                            / poseClassifier.confidenceRange();
+            result.add(maxConfidenceClass.getFormattedString());
         }
 
         return result;

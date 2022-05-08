@@ -52,20 +52,6 @@ class LandmarkPointsAndInferenceGraphic internal constructor(
             return
         }
 
-        // Draw pose classification text.
-        val classificationX = POSE_CLASSIFICATION_TEXT_SIZE * 0.5f
-        for (i in poseClassification.indices) {
-            val classificationY = canvas.height - (
-                    POSE_CLASSIFICATION_TEXT_SIZE * 1.5f * (poseClassification.size - i).toFloat()
-                    )
-            canvas.drawText(
-                poseClassification[i],
-                classificationX,
-                classificationY,
-                classificationTextPaint
-            )
-        }
-
         if (!DetectorOptions.shouldShowOutLine()) {
             return
         }

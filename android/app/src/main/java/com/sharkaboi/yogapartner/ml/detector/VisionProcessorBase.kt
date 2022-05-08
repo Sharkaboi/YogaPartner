@@ -15,8 +15,8 @@ import com.google.mlkit.vision.common.InputImage
 import com.sharkaboi.yogapartner.common.extensions.showToast
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
 import com.sharkaboi.yogapartner.ml.utils.BitmapUtils
-import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.CameraPreviewBitmapGraphic
 import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.FpsInfoGraphic
+import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.GraphicOverlay
 import timber.log.Timber
 import java.lang.Math.max
 import java.lang.Math.min
@@ -66,7 +66,12 @@ abstract class VisionProcessorBase<T>(context: Context) {
 
     // -----------------Code for processing live preview frame from CameraX API-----------------------
     @ExperimentalGetImage
-    fun processImageProxy(image: ImageProxy, graphicOverlay: com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.GraphicOverlay) {
+    fun processImageProxy(
+        image: ImageProxy,
+        graphicOverlay: GraphicOverlay,
+        onInference: (PoseDetectorProcessor.PoseWithClassification) -> Unit,
+        isLoading: (Boolean) -> Unit
+    ) {
         val frameStartMs = SystemClock.elapsedRealtime()
         if (isShutdown) {
             image.close()
@@ -86,7 +91,9 @@ abstract class VisionProcessorBase<T>(context: Context) {
                 graphicOverlay,
                 /* originalCameraImage= */ bitmap,
                 /* shouldShowFps= */ true,
-                frameStartMs
+                frameStartMs,
+                onInference,
+                isLoading
             )
                 // When the image is from CameraX analysis use case, must call image.close() on received
                 // images when finished using them. Otherwise, new images may not be received or the camera
@@ -103,7 +110,9 @@ abstract class VisionProcessorBase<T>(context: Context) {
             graphicOverlay,
             /* originalCameraImage= */ bitmap,
             /* shouldShowFps= */ true,
-            frameStartMs
+            frameStartMs,
+            onInference,
+            isLoading
         )
             // When the image is from CameraX analysis use case, must call image.close() on received
             // images when finished using them. Otherwise, new images may not be received or the camera
@@ -114,43 +123,50 @@ abstract class VisionProcessorBase<T>(context: Context) {
     // For InputImage input
     private fun requestDetectInImage(
         image: InputImage,
-        graphicOverlay: com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.GraphicOverlay,
+        graphicOverlay: GraphicOverlay,
         originalCameraImage: Bitmap?,
         shouldShowFps: Boolean,
-        frameStartMs: Long
+        frameStartMs: Long,
+        onInference: (PoseDetectorProcessor.PoseWithClassification) -> Unit,
+        isLoading: (Boolean) -> Unit
     ): Task<T> {
         return setUpListener(
-            detectInImage(image),
+            detectInImage(image, isLoading),
             graphicOverlay,
             originalCameraImage,
             shouldShowFps,
-            frameStartMs
+            frameStartMs,
+            onInference
         )
     }
 
     // For MlImage input
     private fun requestDetectInImage(
         image: MlImage,
-        graphicOverlay: com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.GraphicOverlay,
+        graphicOverlay: GraphicOverlay,
         originalCameraImage: Bitmap?,
         shouldShowFps: Boolean,
-        frameStartMs: Long
+        frameStartMs: Long,
+        onInference: (PoseDetectorProcessor.PoseWithClassification) -> Unit,
+        isLoading: (Boolean) -> Unit
     ): Task<T> {
         return setUpListener(
-            detectInImage(image),
+            detectInImage(image, isLoading),
             graphicOverlay,
             originalCameraImage,
             shouldShowFps,
-            frameStartMs
+            frameStartMs,
+            onInference
         )
     }
 
     private fun setUpListener(
         task: Task<T>,
-        graphicOverlay: com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.GraphicOverlay,
+        graphicOverlay: GraphicOverlay,
         originalCameraImage: Bitmap?,
         shouldShowFps: Boolean,
-        frameStartMs: Long
+        frameStartMs: Long,
+        onInference: (PoseDetectorProcessor.PoseWithClassification) -> Unit
     ): Task<T> {
         val detectorStartMs = SystemClock.elapsedRealtime()
         return task
@@ -199,14 +215,14 @@ abstract class VisionProcessorBase<T>(context: Context) {
                     }
                     graphicOverlay.clear()
                     if (originalCameraImage != null) {
-                        graphicOverlay.add(
-                            CameraPreviewBitmapGraphic(
-                                graphicOverlay,
-                                originalCameraImage
-                            )
-                        )
+//                        graphicOverlay.add(
+//                            CameraPreviewBitmapGraphic(
+//                                graphicOverlay,
+//                                originalCameraImage
+//                            )
+//                        )
                     }
-                    this@VisionProcessorBase.onSuccess(results, graphicOverlay)
+                    this@VisionProcessorBase.onSuccess(results, graphicOverlay, onInference)
                     if (!DetectorOptions.shouldHideDetectionInfo()) {
                         graphicOverlay.add(
                             FpsInfoGraphic(
@@ -251,11 +267,11 @@ abstract class VisionProcessorBase<T>(context: Context) {
         minDetectorMs = Long.MAX_VALUE
     }
 
-    protected abstract fun detectInImage(image: InputImage): Task<T>
+    protected abstract fun detectInImage(image: InputImage, isLoading: (Boolean) -> Unit): Task<T>
 
-    protected abstract fun detectInImage(image: MlImage): Task<T>
+    protected abstract fun detectInImage(image: MlImage, isLoading: (Boolean) -> Unit): Task<T>
 
-    protected abstract fun onSuccess(results: T, graphicOverlay: com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.GraphicOverlay)
+    protected abstract fun onSuccess(results: T, graphicOverlay: GraphicOverlay, onInference: (PoseDetectorProcessor.PoseWithClassification) -> Unit)
 
     protected abstract fun onFailure(e: Exception)
 }
