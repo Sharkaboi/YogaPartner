@@ -2,3 +2,7 @@ intermediates/
 Original Datasets/
 .ipynb_checkpoints/
 .vscode/
+aug/
+data/temp
+data/not enough images/
+serviceAccountKey.json
