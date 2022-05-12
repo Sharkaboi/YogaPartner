@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         destination: NavDestination,
         arguments: Bundle?
     ) {
-        Timber.d("onDestinationChanged " + destination.displayName)
-        Timber.d("" + navController.backQueue.map { it.destination.displayName })
+//        Timber.d("onDestinationChanged " + destination.displayName)
+//        Timber.d("" + navController.backQueue.map { it.destination.displayName })
     }
 }

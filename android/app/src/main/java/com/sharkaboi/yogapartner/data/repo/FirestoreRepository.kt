@@ -16,7 +16,7 @@ class FirestoreRepository(
             .get()
             .asDeferred()
         val result = deferred.await()
-        Timber.d(result.documents.toString())
+//        Timber.d(result.documents.toString())
         Asana.getFromDbList(result.documents)
     }
 
