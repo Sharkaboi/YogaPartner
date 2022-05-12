@@ -17,6 +17,7 @@ import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseDetector
 import com.sharkaboi.yogapartner.R
 import com.sharkaboi.yogapartner.common.extensions.showToast
+import com.sharkaboi.yogapartner.ml.classification.PoseClass
 import com.sharkaboi.yogapartner.ml.classification.PoseClassifier
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
 import com.sharkaboi.yogapartner.ml.log.LatencyLogger
@@ -216,19 +217,14 @@ class AsanaProcessor(
     }
 
     @WorkerThread
-    private fun classifyAsanaFromPose(pose: Pose): List<String> {
+    private fun classifyAsanaFromPose(pose: Pose): PoseClass {
         Preconditions.checkState(Looper.myLooper() != Looper.getMainLooper())
-        val result: MutableList<String> = ArrayList()
         val classification = poseClassifier!!.classify(pose)
 
-        // Add maxConfidence class of current frame to result if pose is found.
-        if (pose.allPoseLandmarks.isNotEmpty()) {
-            val maxConfidenceClass = classification.getMaxConfidenceClass()
-            val confidence = (classification.getClassConfidence(maxConfidenceClass)
-                    / poseClassifier!!.confidenceRange())
-            result.add(maxConfidenceClass.getFormattedString())
-        }
-        return result
+        val maxConfidenceClass = classification.getMaxConfidenceClass()
+        val confidence = (classification.getClassConfidence(maxConfidenceClass)
+                / poseClassifier!!.confidenceRange())
+        return maxConfidenceClass
     }
 
     private fun loadPoseSamplesFromDisk() {

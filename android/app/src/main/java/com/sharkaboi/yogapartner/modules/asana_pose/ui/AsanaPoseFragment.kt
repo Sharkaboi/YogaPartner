@@ -204,8 +204,7 @@ class AsanaPoseFragment : Fragment() {
                         imageProxy, landMarksOverlay,
                         onInference = {
                             binding.tvInference.text =
-                                it.classificationResult.firstOrNull()?.capitalizeFirst()
-                                    ?: "Unknown"
+                                it.classificationResult.getFormattedString().capitalizeFirst()
                         }, isLoading = {
                             lifecycleScope.launch(Dispatchers.Main) {
                                 binding.progress.isVisible = it
