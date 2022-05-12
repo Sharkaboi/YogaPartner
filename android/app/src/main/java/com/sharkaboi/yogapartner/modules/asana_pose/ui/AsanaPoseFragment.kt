@@ -17,10 +17,10 @@ import com.google.mlkit.common.MlKitException
 import com.sharkaboi.yogapartner.common.extensions.capitalizeFirst
 import com.sharkaboi.yogapartner.common.extensions.observe
 import com.sharkaboi.yogapartner.common.extensions.showToast
-import com.sharkaboi.yogapartner.databinding.FragmentAsanaCameraBinding
+import com.sharkaboi.yogapartner.databinding.FragmentAsanaPoseBinding
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
 import com.sharkaboi.yogapartner.ml.detector.PoseDetectorProcessor
-import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.GraphicOverlay
+import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.LandMarksOverlay
 import com.sharkaboi.yogapartner.modules.asana_pose.vm.AsanaPoseViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -30,13 +30,13 @@ import timber.log.Timber
 @ExperimentalGetImage
 @AndroidEntryPoint
 class AsanaPoseFragment : Fragment() {
-    private var _binding: FragmentAsanaCameraBinding? = null
+    private var _binding: FragmentAsanaPoseBinding? = null
     private val binding get() = _binding!!
     private val asanaPoseViewModel by viewModels<AsanaPoseViewModel>()
     private val navController get() = findNavController()
 
     private val previewView: PreviewView get() = binding.previewView
-    private val landMarksOverlay: GraphicOverlay get() = binding.landmarksOverlay
+    private val landMarksOverlay: LandMarksOverlay get() = binding.landmarksOverlay
     private var cameraProvider: ProcessCameraProvider? = null
     private var previewUseCase: Preview? = null
     private var analysisUseCase: ImageAnalysis? = null
@@ -49,7 +49,7 @@ class AsanaPoseFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentAsanaCameraBinding.inflate(layoutInflater, container, false)
+        _binding = FragmentAsanaPoseBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 
@@ -111,6 +111,7 @@ class AsanaPoseFragment : Fragment() {
                 lensFacing = newLensFacing
                 cameraSelector = newCameraSelector
                 bindAllCameraUseCases()
+                // TODO: 12-05-2022 restart detector and not use tracker
                 binding.progress.isVisible = false
                 return
             }
@@ -133,10 +134,6 @@ class AsanaPoseFragment : Fragment() {
     }
 
     private fun bindPreviewUseCase() {
-        if (!DetectorOptions.getInstance().isCameraLiveViewportEnabled()) {
-            return
-        }
-
         if (cameraProvider == null) {
             return
         }
@@ -168,19 +165,9 @@ class AsanaPoseFragment : Fragment() {
 
         try {
             val poseDetectorOptions = DetectorOptions.getInstance().getOption()
-            val shouldShowInFrameLikelihood = DetectorOptions.getInstance().inFrameLikelihood()
-            val visualizeZ = DetectorOptions.getInstance().getVisualizeZ()
-            val rescaleZ = DetectorOptions.getInstance().rescaleZForVisualization()
-            val runClassification =
-                DetectorOptions.getInstance().shouldPoseDetectionRunClassification()
             imageProcessor = PoseDetectorProcessor(
                 requireContext(),
-                poseDetectorOptions,
-                shouldShowInFrameLikelihood,
-                visualizeZ,
-                rescaleZ,
-                runClassification,
-                /* isStreamMode = */ DetectorOptions.getInstance().shouldShowReps()
+                poseDetectorOptions
             )
         } catch (e: Exception) {
             Timber.d("Can not create image processor", e)
@@ -241,6 +228,7 @@ class AsanaPoseFragment : Fragment() {
                 }
             }
         )
+        binding.landmarksOverlay.clear()
         cameraProvider!!.bindToLifecycle(viewLifecycleOwner, cameraSelector!!, analysisUseCase)
     }
 }

@@ -42,14 +42,6 @@ class DetectorOptions private constructor() {
         }
     }
 
-    fun isCameraLiveViewportEnabled(): Boolean {
-        return true
-    }
-
-    fun shouldHideDetectionInfo(): Boolean {
-        return true
-    }
-
     fun getVisualizeZ(): Boolean {
         return true
     }
@@ -58,28 +50,8 @@ class DetectorOptions private constructor() {
         return true
     }
 
-    fun inFrameLikelihood(): Boolean {
-        return true
-    }
-
-    fun shouldPoseDetectionRunClassification(): Boolean {
-        return true
-    }
-
     fun getCameraXTargetResolution(): Size? {
         return null
-    }
-
-    fun shouldShowLatencyInfo(): Boolean {
-        return false
-    }
-
-    fun shouldShowInputImageSize(): Boolean {
-        return false
-    }
-
-    fun shouldShowReps(): Boolean {
-        return false
     }
 
     fun shouldShowOutLine(): Boolean {

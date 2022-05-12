@@ -9,22 +9,15 @@ import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseDetector
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase
 import com.sharkaboi.yogapartner.ml.classification.PoseClassifierProcessor
-import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.GraphicOverlay
-import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.LandmarkPointsAndInferenceGraphic
+import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.LandMarksOverlay
 import timber.log.Timber
-import java.util.*
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
 /** A processor to run pose detector. */
 class PoseDetectorProcessor(
     private val context: Context,
-    options: PoseDetectorOptionsBase,
-    private val showInFrameLikelihood: Boolean,
-    private val visualizeZ: Boolean,
-    private val rescaleZForVisualization: Boolean,
-    private val runClassification: Boolean,
-    private val isStreamMode: Boolean
+    options: PoseDetectorOptionsBase
 ) : VisionProcessorBase<PoseDetectorProcessor.PoseWithClassification>(context) {
 
     private val detector: PoseDetector = PoseDetection.getClient(options)
@@ -45,26 +38,22 @@ class PoseDetectorProcessor(
     }
 
     // For InputImage type
-    override fun detectInImage(image: InputImage, isLoading: (Boolean) -> Unit): Task<PoseWithClassification> {
+    override fun detectInImage(
+        image: InputImage,
+        isLoading: (Boolean) -> Unit
+    ): Task<PoseWithClassification> {
         return detector
             .process(image)
             .continueWith(
                 classificationExecutor,
                 { task ->
                     val pose = task.result
-                    var classificationResult: List<String> = ArrayList()
-                    if (runClassification) {
-                        if (poseClassifierProcessor == null) {
-                            isLoading(true)
-                            poseClassifierProcessor =
-                                PoseClassifierProcessor(
-                                    context,
-                                    isStreamMode
-                                )
-                        }
-                        isLoading(false)
-                        classificationResult = poseClassifierProcessor!!.getPoseResult(pose)
+                    if (poseClassifierProcessor == null) {
+                        isLoading(true)
+                        poseClassifierProcessor = PoseClassifierProcessor(context)
                     }
+                    isLoading(false)
+                    val classificationResult = poseClassifierProcessor!!.getPoseResult(pose)
                     PoseWithClassification(pose, classificationResult)
                 }
             )
@@ -80,20 +69,13 @@ class PoseDetectorProcessor(
             .continueWith(
                 classificationExecutor,
                 { task ->
-                    val pose = task.getResult()
-                    var classificationResult: List<String> = ArrayList()
-                    if (runClassification) {
-                        if (poseClassifierProcessor == null) {
-                            isLoading(true)
-                            poseClassifierProcessor =
-                                PoseClassifierProcessor(
-                                    context,
-                                    isStreamMode
-                                )
-                        }
-                        isLoading(false)
-                        classificationResult = poseClassifierProcessor!!.getPoseResult(pose)
+                    val pose = task.result
+                    if (poseClassifierProcessor == null) {
+                        isLoading(true)
+                        poseClassifierProcessor = PoseClassifierProcessor(context)
                     }
+                    isLoading(false)
+                    val classificationResult = poseClassifierProcessor!!.getPoseResult(pose)
                     PoseWithClassification(pose, classificationResult)
                 }
             )
@@ -101,20 +83,11 @@ class PoseDetectorProcessor(
 
     override fun onSuccess(
         results: PoseWithClassification,
-        graphicOverlay: GraphicOverlay,
+        landMarksOverlay: LandMarksOverlay,
         onInference: (PoseWithClassification) -> Unit
     ) {
         onInference(results)
-        graphicOverlay.add(
-            LandmarkPointsAndInferenceGraphic(
-                graphicOverlay,
-                results.pose,
-                showInFrameLikelihood,
-                visualizeZ,
-                rescaleZForVisualization,
-                results.classificationResult
-            )
-        )
+        landMarksOverlay.setPose(results.pose)
     }
 
     override fun onFailure(e: Exception) {

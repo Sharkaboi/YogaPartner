@@ -28,7 +28,7 @@ public class PoseClassifierProcessor {
     private PoseClassifier poseClassifier;
 
     @WorkerThread
-    public PoseClassifierProcessor(Context context, boolean isStreamMode) {
+    public PoseClassifierProcessor(Context context) {
         Preconditions.checkState(Looper.myLooper() != Looper.getMainLooper());
         loadPoseSamples(context);
     }
@@ -67,7 +67,7 @@ public class PoseClassifierProcessor {
         if (!pose.getAllPoseLandmarks().isEmpty()) {
             PoseClass maxConfidenceClass = classification.getMaxConfidenceClass();
             float confidence = classification.getClassConfidence(maxConfidenceClass)
-                            / poseClassifier.confidenceRange();
+                    / poseClassifier.confidenceRange();
             result.add(maxConfidenceClass.getFormattedString());
         }
 

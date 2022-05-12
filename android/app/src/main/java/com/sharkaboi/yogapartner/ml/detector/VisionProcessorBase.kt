@@ -2,11 +2,9 @@ package com.sharkaboi.yogapartner.ml.detector
 
 import android.app.ActivityManager
 import android.content.Context
-import android.graphics.Bitmap
 import android.os.SystemClock
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
-import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.TaskExecutors
 import com.google.android.odml.image.MediaMlImageBuilder
@@ -14,25 +12,13 @@ import com.google.android.odml.image.MlImage
 import com.google.mlkit.vision.common.InputImage
 import com.sharkaboi.yogapartner.common.extensions.showToast
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
-import com.sharkaboi.yogapartner.ml.utils.BitmapUtils
-import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.FpsInfoGraphic
-import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.GraphicOverlay
+import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.LandMarksOverlay
 import timber.log.Timber
 import java.lang.Math.max
 import java.lang.Math.min
 import java.util.*
 
-/**
- * Abstract base class for ML Kit frame processors. Subclasses need to implement {@link
- * #onSuccess(T, FrameMetadata, GraphicOverlay)} to define what they want to with the detection
- * results and {@link #detectInImage(VisionImage)} to specify the detector object.
- *
- * @param <T> The type of the detected feature.
- */
 abstract class VisionProcessorBase<T>(context: Context) {
-    private var activityManager: ActivityManager =
-        context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-    private val fpsTimer = Timer()
     private val executor = DetectorScopedExecutor(TaskExecutors.MAIN_THREAD)
 
     // Whether this processor is already shut down
@@ -49,26 +35,11 @@ abstract class VisionProcessorBase<T>(context: Context) {
 
     // Frame count that have been processed so far in an one second interval to calculate FPS.
     private var frameProcessedInOneSecondInterval = 0
-    private var framesPerSecond = 0
 
-    init {
-        fpsTimer.scheduleAtFixedRate(
-            object : TimerTask() {
-                override fun run() {
-                    framesPerSecond = frameProcessedInOneSecondInterval
-                    frameProcessedInOneSecondInterval = 0
-                }
-            },
-            0,
-            1000
-        )
-    }
-
-    // -----------------Code for processing live preview frame from CameraX API-----------------------
     @ExperimentalGetImage
     fun processImageProxy(
         image: ImageProxy,
-        graphicOverlay: GraphicOverlay,
+        landMarksOverlay: LandMarksOverlay,
         onInference: (PoseDetectorProcessor.PoseWithClassification) -> Unit,
         isLoading: (Boolean) -> Unit
     ) {
@@ -77,10 +48,6 @@ abstract class VisionProcessorBase<T>(context: Context) {
             image.close()
             return
         }
-        var bitmap: Bitmap? = null
-        if (!DetectorOptions.getInstance().isCameraLiveViewportEnabled()) {
-            bitmap = BitmapUtils.getBitmap(image)
-        }
 
         if (DetectorOptions.getInstance().isMLImageEnabled()) {
             val mlImage =
@@ -88,9 +55,7 @@ abstract class VisionProcessorBase<T>(context: Context) {
                     .build()
             requestDetectInImage(
                 mlImage,
-                graphicOverlay,
-                /* originalCameraImage= */ bitmap,
-                /* shouldShowFps= */ true,
+                landMarksOverlay,
                 frameStartMs,
                 onInference,
                 isLoading
@@ -107,9 +72,7 @@ abstract class VisionProcessorBase<T>(context: Context) {
 
         requestDetectInImage(
             InputImage.fromMediaImage(image.image!!, image.imageInfo.rotationDegrees),
-            graphicOverlay,
-            /* originalCameraImage= */ bitmap,
-            /* shouldShowFps= */ true,
+            landMarksOverlay,
             frameStartMs,
             onInference,
             isLoading
@@ -123,18 +86,14 @@ abstract class VisionProcessorBase<T>(context: Context) {
     // For InputImage input
     private fun requestDetectInImage(
         image: InputImage,
-        graphicOverlay: GraphicOverlay,
-        originalCameraImage: Bitmap?,
-        shouldShowFps: Boolean,
+        landMarksOverlay: LandMarksOverlay,
         frameStartMs: Long,
         onInference: (PoseDetectorProcessor.PoseWithClassification) -> Unit,
         isLoading: (Boolean) -> Unit
     ): Task<T> {
         return setUpListener(
             detectInImage(image, isLoading),
-            graphicOverlay,
-            originalCameraImage,
-            shouldShowFps,
+            landMarksOverlay,
             frameStartMs,
             onInference
         )
@@ -143,18 +102,14 @@ abstract class VisionProcessorBase<T>(context: Context) {
     // For MlImage input
     private fun requestDetectInImage(
         image: MlImage,
-        graphicOverlay: GraphicOverlay,
-        originalCameraImage: Bitmap?,
-        shouldShowFps: Boolean,
+        landMarksOverlay: LandMarksOverlay,
         frameStartMs: Long,
         onInference: (PoseDetectorProcessor.PoseWithClassification) -> Unit,
         isLoading: (Boolean) -> Unit
     ): Task<T> {
         return setUpListener(
             detectInImage(image, isLoading),
-            graphicOverlay,
-            originalCameraImage,
-            shouldShowFps,
+            landMarksOverlay,
             frameStartMs,
             onInference
         )
@@ -162,9 +117,7 @@ abstract class VisionProcessorBase<T>(context: Context) {
 
     private fun setUpListener(
         task: Task<T>,
-        graphicOverlay: GraphicOverlay,
-        originalCameraImage: Bitmap?,
-        shouldShowFps: Boolean,
+        landMarksOverlay: LandMarksOverlay,
         frameStartMs: Long,
         onInference: (PoseDetectorProcessor.PoseWithClassification) -> Unit
     ): Task<T> {
@@ -172,7 +125,7 @@ abstract class VisionProcessorBase<T>(context: Context) {
         return task
             .addOnSuccessListener(
                 executor,
-                OnSuccessListener { results: T ->
+                { results: T ->
                     val endMs = SystemClock.elapsedRealtime()
                     val currentFrameLatencyMs = endMs - frameStartMs
                     val currentDetectorLatencyMs = endMs - detectorStartMs
@@ -208,41 +161,19 @@ abstract class VisionProcessorBase<T>(context: Context) {
                                     ", avg=" +
                                     totalDetectorMs / numRuns
                         )
-                        val mi = ActivityManager.MemoryInfo()
-                        activityManager.getMemoryInfo(mi)
-                        val availableMegs: Long = mi.availMem / 0x100000L
-                        Timber.d("Memory available in system: $availableMegs MB")
                     }
-                    graphicOverlay.clear()
-                    if (originalCameraImage != null) {
-//                        graphicOverlay.add(
-//                            CameraPreviewBitmapGraphic(
-//                                graphicOverlay,
-//                                originalCameraImage
-//                            )
-//                        )
-                    }
-                    this@VisionProcessorBase.onSuccess(results, graphicOverlay, onInference)
-                    if (!DetectorOptions.getInstance().shouldHideDetectionInfo()) {
-                        graphicOverlay.add(
-                            FpsInfoGraphic(
-                                graphicOverlay,
-                                currentFrameLatencyMs,
-                                currentDetectorLatencyMs,
-                                if (shouldShowFps) framesPerSecond else null
-                            )
-                        )
-                    }
-                    graphicOverlay.postInvalidate()
+                    landMarksOverlay.clear()
+                    this@VisionProcessorBase.onSuccess(results, landMarksOverlay, onInference)
+                    landMarksOverlay.postInvalidate()
                 }
             )
             .addOnFailureListener(
                 executor,
                 { e: Exception ->
-                    graphicOverlay.clear()
-                    graphicOverlay.postInvalidate()
+                    landMarksOverlay.clear()
+                    landMarksOverlay.postInvalidate()
                     val error = "Failed to process. Error: " + e.localizedMessage
-                    graphicOverlay.context.showToast("$error \nCause: ${e.cause}")
+                    landMarksOverlay.context.showToast("$error \nCause: ${e.cause}")
                     Timber.d(error)
                     e.printStackTrace()
                     this@VisionProcessorBase.onFailure(e)
@@ -254,7 +185,6 @@ abstract class VisionProcessorBase<T>(context: Context) {
         executor.shutdown()
         isShutdown = true
         resetLatencyStats()
-        fpsTimer.cancel()
     }
 
     private fun resetLatencyStats() {
@@ -271,7 +201,11 @@ abstract class VisionProcessorBase<T>(context: Context) {
 
     protected abstract fun detectInImage(image: MlImage, isLoading: (Boolean) -> Unit): Task<T>
 
-    protected abstract fun onSuccess(results: T, graphicOverlay: GraphicOverlay, onInference: (PoseDetectorProcessor.PoseWithClassification) -> Unit)
+    protected abstract fun onSuccess(
+        results: T,
+        landMarksOverlay: LandMarksOverlay,
+        onInference: (PoseDetectorProcessor.PoseWithClassification) -> Unit
+    )
 
     protected abstract fun onFailure(e: Exception)
 }
