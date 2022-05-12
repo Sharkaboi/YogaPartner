@@ -1,6 +1,26 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <com.sharkaboi.yogapartner.modules.settings.ToolBarPreference
+        app:icon="@drawable/ic_back"
+        app:key="toolbar" />
+
     <SwitchPreferenceCompat
         app:key="showPose"
         app:title="Show pose outline" />
+
+    <SwitchPreferenceCompat
+        app:key="isMlImage"
+        app:title="Use MLImage type" />
+
+    <SwitchPreferenceCompat
+        app:key="showZ"
+        app:title="Visualize Z" />
+
+    <SwitchPreferenceCompat
+        app:key="useAccurate"
+        app:title="Use accurate detector" />
+
+    <SwitchPreferenceCompat
+        app:key="preferGpu"
+        app:title="Use gpu to run detector" />
 </PreferenceScreen>

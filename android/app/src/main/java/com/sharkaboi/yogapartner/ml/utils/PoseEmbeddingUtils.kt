@@ -8,7 +8,7 @@ import com.sharkaboi.yogapartner.ml.config.DetectorOptions
  * Generates embedding for given list of Pose landmarks.
  */
 object PoseEmbeddingUtils {
-    private val TORSO_MULTIPLIER = DetectorOptions.getInstance().torsoEmbeddingMultiplier
+    private val TORSO_MULTIPLIER = DetectorOptions.TORSO_MULTIPLIER
 
     @JvmStatic
     fun getPoseEmbedding(landmarks: List<PointF3D>): List<PointF3D> {
