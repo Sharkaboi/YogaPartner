@@ -142,11 +142,6 @@ class AsanaPoseFragment : Fragment() {
         }
 
         val builder = Preview.Builder()
-        val targetResolution =
-            DetectorOptions.getInstance().getCameraXTargetResolution()
-        if (targetResolution != null) {
-            builder.setTargetResolution(targetResolution)
-        }
         previewUseCase = builder.build()
         previewUseCase!!.setSurfaceProvider(previewView.surfaceProvider)
         cameraProvider!!.bindToLifecycle(viewLifecycleOwner, cameraSelector!!, previewUseCase)
@@ -178,11 +173,6 @@ class AsanaPoseFragment : Fragment() {
         }
 
         val builder = ImageAnalysis.Builder()
-        val targetResolution =
-            DetectorOptions.getInstance().getCameraXTargetResolution()
-        if (targetResolution != null) {
-            builder.setTargetResolution(targetResolution)
-        }
         analysisUseCase = builder.build()
 
         needUpdateGraphicOverlayImageSourceInfo = true

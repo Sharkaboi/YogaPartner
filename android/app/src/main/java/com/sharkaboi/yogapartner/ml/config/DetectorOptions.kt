@@ -50,10 +50,6 @@ class DetectorOptions private constructor() {
         return true
     }
 
-    fun getCameraXTargetResolution(): Size? {
-        return null
-    }
-
     fun shouldShowOutLine(): Boolean {
         return sharedPrefs.getBoolean("showPose", false)
     }
