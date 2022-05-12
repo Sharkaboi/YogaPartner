@@ -18,8 +18,8 @@ import com.sharkaboi.yogapartner.common.extensions.capitalizeFirst
 import com.sharkaboi.yogapartner.common.extensions.observe
 import com.sharkaboi.yogapartner.common.extensions.showToast
 import com.sharkaboi.yogapartner.databinding.FragmentAsanaPoseBinding
-import com.sharkaboi.yogapartner.ml.config.DetectorOptions
-import com.sharkaboi.yogapartner.ml.detector.PoseDetectorProcessor
+import com.sharkaboi.yogapartner.ml.log.LatencyLogger
+import com.sharkaboi.yogapartner.ml.processor.AsanaProcessor
 import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.LandMarksOverlay
 import com.sharkaboi.yogapartner.modules.asana_pose.vm.AsanaPoseViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -40,7 +40,7 @@ class AsanaPoseFragment : Fragment() {
     private var cameraProvider: ProcessCameraProvider? = null
     private var previewUseCase: Preview? = null
     private var analysisUseCase: ImageAnalysis? = null
-    private var imageProcessor: PoseDetectorProcessor? = null
+    private var asanaProcessor: AsanaProcessor? = null
     private var needUpdateGraphicOverlayImageSourceInfo = false
     private var lensFacing = CameraSelector.LENS_FACING_FRONT
     private var cameraSelector: CameraSelector? = null
@@ -60,11 +60,11 @@ class AsanaPoseFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        imageProcessor?.run { this.stop() }
+        asanaProcessor?.run { this.stop() }
     }
 
     override fun onDestroyView() {
-        imageProcessor?.run { this.stop() }
+        asanaProcessor?.run { this.stop() }
         _binding = null
         super.onDestroyView()
     }
@@ -154,15 +154,14 @@ class AsanaPoseFragment : Fragment() {
         if (analysisUseCase != null) {
             cameraProvider!!.unbind(analysisUseCase)
         }
-        if (imageProcessor != null) {
-            imageProcessor!!.stop()
+        if (asanaProcessor != null) {
+            asanaProcessor!!.stop()
         }
 
         try {
-            val poseDetectorOptions = DetectorOptions.getInstance().getOption()
-            imageProcessor = PoseDetectorProcessor(
+            asanaProcessor = AsanaProcessor(
                 requireContext(),
-                poseDetectorOptions
+                LatencyLogger()
             )
         } catch (e: Exception) {
             Timber.d("Can not create image processor", e)
@@ -201,7 +200,7 @@ class AsanaPoseFragment : Fragment() {
                     needUpdateGraphicOverlayImageSourceInfo = false
                 }
                 try {
-                    imageProcessor!!.processImageProxy(
+                    asanaProcessor!!.processImageProxy(
                         imageProxy, landMarksOverlay,
                         onInference = {
                             binding.tvInference.text =
