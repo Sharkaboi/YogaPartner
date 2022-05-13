@@ -3,9 +3,6 @@ package com.sharkaboi.yogapartner.ml.models
 import com.sharkaboi.yogapartner.ml.classification.PoseClass
 import java.util.*
 
-/**
- * Represents Pose classification result as outputted by [PoseClassifier]. Can be manipulated.
- */
 class ClassificationResult {
     // For an entry in this map, the key is the class name, and the value is how many times this class
     // appears in the top K nearest neighbors. The value is in range [0, K] and could be a float after

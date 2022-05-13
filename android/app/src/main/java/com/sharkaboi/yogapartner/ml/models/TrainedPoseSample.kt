@@ -34,7 +34,7 @@ data class TrainedPoseSample(
             }
             val name = tokens[0]
             val className = tokens[1]
-            val landmarks: ArrayList<PointF3D> = ArrayList<PointF3D>()
+            val landmarks: ArrayList<PointF3D> = ArrayList()
             // Read from the third token, first 2 tokens are name and class.
             var i = 2
             while (i < tokens.size) {
