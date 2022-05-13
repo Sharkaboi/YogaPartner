@@ -3,6 +3,7 @@ package com.sharkaboi.yogapartner.modules.settings
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
@@ -30,6 +31,14 @@ class ToolBarPreference @JvmOverloads constructor(
             ResourcesCompat.getColor(
                 context.resources,
                 R.color.dark_black,
+                context.theme
+            )
+        )
+        val tvTitle = holder.findViewById(android.R.id.title) as TextView
+        tvTitle.setTextColor(
+            ResourcesCompat.getColor(
+                context.resources,
+                R.color.white,
                 context.theme
             )
         )

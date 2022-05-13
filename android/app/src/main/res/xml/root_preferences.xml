@@ -2,25 +2,31 @@
 
     <com.sharkaboi.yogapartner.modules.settings.ToolBarPreference
         app:icon="@drawable/ic_back"
+        app:title="Settings"
         app:key="toolbar" />
 
     <SwitchPreferenceCompat
+        app:icon="@drawable/ic_pose"
         app:key="showPose"
         app:title="Show pose outline" />
 
     <SwitchPreferenceCompat
+        app:icon="@drawable/ic_image_type"
         app:key="isMlImage"
         app:title="Use MLImage type" />
 
     <SwitchPreferenceCompat
+        app:icon="@drawable/ic_visualize_z"
         app:key="showZ"
         app:title="Visualize Z" />
 
     <SwitchPreferenceCompat
+        app:icon="@drawable/ic_accurate"
         app:key="useAccurate"
         app:title="Use accurate detector" />
 
     <SwitchPreferenceCompat
+        app:icon="@drawable/ic_speed"
         app:key="preferGpu"
-        app:title="Use gpu to run detector" />
+        app:title="Use GPU to run detector" />
 </PreferenceScreen>
