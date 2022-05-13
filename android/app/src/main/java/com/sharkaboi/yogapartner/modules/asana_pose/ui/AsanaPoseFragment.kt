@@ -228,6 +228,7 @@ class AsanaPoseFragment : Fragment() {
     }
 
     private fun onInference(poseWithClassification: PoseWithClassification) {
+        // TODO: 13-05-2022 smoothen result with debounce
         binding.tvInference.text =
             poseWithClassification.classificationResult.getFormattedString().capitalizeFirst()
         checkDistanceFromCamera(poseWithClassification.pose)
