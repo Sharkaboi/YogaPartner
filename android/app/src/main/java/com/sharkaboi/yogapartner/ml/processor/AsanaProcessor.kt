@@ -24,6 +24,7 @@ import com.sharkaboi.yogapartner.ml.log.LatencyLogger
 import com.sharkaboi.yogapartner.ml.models.PoseWithAsanaClassification
 import com.sharkaboi.yogapartner.ml.models.TrainedPoseSample
 import com.sharkaboi.yogapartner.ml.models.TrainedPoseSample.Companion.getPoseSample
+import com.sharkaboi.yogapartner.ml.utils.CancellableExecutor
 import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.LandMarksOverlay
 import timber.log.Timber
 import java.io.BufferedReader

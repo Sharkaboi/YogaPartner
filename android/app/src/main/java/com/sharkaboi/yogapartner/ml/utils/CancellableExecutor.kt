@@ -1,4 +1,4 @@
-package com.sharkaboi.yogapartner.ml.processor
+package com.sharkaboi.yogapartner.ml.utils
 
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicBoolean

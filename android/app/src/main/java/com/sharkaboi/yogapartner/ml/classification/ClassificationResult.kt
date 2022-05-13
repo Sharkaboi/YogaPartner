@@ -1,6 +1,5 @@
-package com.sharkaboi.yogapartner.ml.models
+package com.sharkaboi.yogapartner.ml.classification
 
-import com.sharkaboi.yogapartner.ml.classification.AsanaClass
 import java.util.*
 
 class ClassificationResult {

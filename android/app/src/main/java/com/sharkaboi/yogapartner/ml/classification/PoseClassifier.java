@@ -14,7 +14,6 @@ import android.util.Pair;
 import com.google.mlkit.vision.common.PointF3D;
 import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseLandmark;
-import com.sharkaboi.yogapartner.ml.models.ClassificationResult;
 import com.sharkaboi.yogapartner.ml.models.TrainedPoseSample;
 import com.sharkaboi.yogapartner.ml.utils.PoseEmbeddingUtils;
 
