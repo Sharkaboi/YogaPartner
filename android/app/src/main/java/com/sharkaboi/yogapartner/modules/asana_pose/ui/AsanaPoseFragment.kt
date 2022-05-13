@@ -14,10 +14,12 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.mlkit.vision.pose.Pose
+import com.google.mlkit.vision.pose.PoseLandmark
 import com.sharkaboi.yogapartner.common.extensions.capitalizeFirst
 import com.sharkaboi.yogapartner.common.extensions.observe
 import com.sharkaboi.yogapartner.common.extensions.showToast
 import com.sharkaboi.yogapartner.databinding.FragmentAsanaPoseBinding
+import com.sharkaboi.yogapartner.ml.config.DetectorOptions
 import com.sharkaboi.yogapartner.ml.log.LatencyLogger
 import com.sharkaboi.yogapartner.ml.models.PoseWithClassification
 import com.sharkaboi.yogapartner.ml.processor.AsanaProcessor
@@ -100,12 +102,11 @@ class AsanaPoseFragment : Fragment() {
         }
 
         binding.progress.isVisible = true
-        val newLensFacing =
-            if (lensFacing == CameraSelector.LENS_FACING_FRONT) {
-                CameraSelector.LENS_FACING_BACK
-            } else {
-                CameraSelector.LENS_FACING_FRONT
-            }
+        val newLensFacing = if (lensFacing == CameraSelector.LENS_FACING_FRONT) {
+            CameraSelector.LENS_FACING_BACK
+        } else {
+            CameraSelector.LENS_FACING_FRONT
+        }
         val newCameraSelector = CameraSelector.Builder().requireLensFacing(newLensFacing).build()
         try {
             if (cameraProvider!!.hasCamera(newCameraSelector)) {
@@ -233,6 +234,26 @@ class AsanaPoseFragment : Fragment() {
     }
 
     private fun checkDistanceFromCamera(pose: Pose) {
-        // TODO: 13-05-2022 if main points have less than threshold confidence, show far away from screen msg
+        val typeToConfidences =
+            pose.allPoseLandmarks.map { Pair(it.landmarkType, it.inFrameLikelihood) }
+        val isNotConfident = typeToConfidences.any {
+            isImportantTypeLandmark(it.first) && it.second < DetectorOptions.LANDMARK_CONF_THRESHOLD
+        }
+        binding.tvNotConfidentMessage.alpha = if (isNotConfident) 1f else 0f
+    }
+
+    private fun isImportantTypeLandmark(landmarkType: Int): Boolean {
+        return landmarkType == PoseLandmark.LEFT_HIP
+                || landmarkType == PoseLandmark.RIGHT_HIP
+                || landmarkType == PoseLandmark.LEFT_SHOULDER
+                || landmarkType == PoseLandmark.RIGHT_SHOULDER
+                || landmarkType == PoseLandmark.LEFT_ELBOW
+                || landmarkType == PoseLandmark.RIGHT_ELBOW
+                || landmarkType == PoseLandmark.LEFT_WRIST
+                || landmarkType == PoseLandmark.RIGHT_WRIST
+                || landmarkType == PoseLandmark.LEFT_KNEE
+                || landmarkType == PoseLandmark.RIGHT_KNEE
+                || landmarkType == PoseLandmark.LEFT_ANKLE
+                || landmarkType == PoseLandmark.RIGHT_ANKLE
     }
 }

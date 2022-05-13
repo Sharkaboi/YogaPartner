@@ -59,6 +59,8 @@ class DetectorOptions private constructor() {
         /** [PoseEmbeddingUtils] */
         const val TORSO_MULTIPLIER = 2.5f
 
+        const val LANDMARK_CONF_THRESHOLD = 0.6f
+
         private val instance = DetectorOptions()
 
         @JvmStatic
