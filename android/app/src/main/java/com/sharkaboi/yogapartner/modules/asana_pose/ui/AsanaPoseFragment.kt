@@ -239,7 +239,7 @@ class AsanaPoseFragment : Fragment() {
             pose.allPoseLandmarks.map { Pair(it.landmarkType, it.inFrameLikelihood) }
         val isNotConfident = typeToConfidences.any {
             isImportantTypeLandmark(it.first) && it.second < DetectorOptions.LANDMARK_CONF_THRESHOLD
-        }
+        } || typeToConfidences.isEmpty()
         binding.tvNotConfidentMessage.alpha = if (isNotConfident) 1f else 0f
     }
 
