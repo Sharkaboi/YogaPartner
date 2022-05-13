@@ -12,8 +12,6 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import coil.load
-import coil.size.Scale
-import coil.transform.RoundedCornersTransformation
 import com.sharkaboi.yogapartner.common.extensions.capitalizeFirst
 import com.sharkaboi.yogapartner.data.models.AsanaDifficulty
 import com.sharkaboi.yogapartner.databinding.FragmentAsanaInfoBinding
@@ -46,10 +44,7 @@ class AsanaInfoFragment : Fragment() {
         binding.btnBack.setOnClickListener {
             navController.navigateUp()
         }
-        binding.ivThumbnail.load(args.asana.asanaThumbnail) {
-            scale(Scale.FILL)
-            transformations(RoundedCornersTransformation(8f))
-        }
+        binding.ivThumbnail.load(args.asana.asanaThumbnail)
         binding.tvDesc.text = args.asana.description
         binding.tvName.text = args.asana.name
         setDifficultySpan()

@@ -15,10 +15,22 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:background="@color/dark_black"
-            app:layout_constraintBottom_toTopOf="@id/barrier"
+            app:layout_constraintBottom_toBottomOf="@id/tvDifficulty"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/ivThumbnail" />
+
+        <ImageView
+            android:id="@+id/ivThumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toTopOf="@id/view"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@tools:sample/backgrounds/scenic" />
 
         <ImageView
             android:id="@+id/btnBack"
@@ -27,28 +39,15 @@
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="32dp"
             android:layout_marginBottom="16dp"
-            app:layout_constraintBottom_toTopOf="@id/ivThumbnail"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_back" />
-
-        <ImageView
-            android:id="@+id/ivThumbnail"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="16dp"
-            app:layout_constraintBottom_toBottomOf="@id/barrier"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btnBack"
-            tools:scaleType="centerCrop"
-            tools:src="@tools:sample/backgrounds/scenic" />
 
         <TextView
             android:id="@+id/tvName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
+            android:layout_margin="16dp"
             android:ellipsize="end"
             android:fontFamily="@font/maven_pro_bold"
             android:textColor="@color/white"
@@ -56,42 +55,32 @@
             android:textSize="24sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/ivThumbnail"
-            app:layout_constraintTop_toTopOf="@+id/ivThumbnail"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivThumbnail"
             tools:text="Savasana" />
 
         <TextView
             android:id="@+id/tvDifficulty"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
+            android:layout_margin="16dp"
             android:ellipsize="end"
             android:fontFamily="@font/maven_pro_bold"
             android:textColor="@color/white"
             android:textFontWeight="700"
             android:textSize="14sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@+id/ivThumbnail"
+            app:layout_constraintBottom_toBottomOf="@id/view"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/ivThumbnail"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvName"
-            app:layout_constraintVertical_bias="1"
             tools:text="Difficulty : easy" />
-
-        <androidx.constraintlayout.widget.Barrier
-            android:id="@+id/barrier"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:barrierDirection="bottom"
-            app:constraint_referenced_ids="tvDifficulty,ivThumbnail" />
 
         <TextView
             android:id="@+id/tvDesc"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginVertical="16dp"
-            android:ellipsize="end"
+            android:layout_margin="16dp"
             android:fontFamily="@font/maven_pro_bold"
             android:textColor="@color/black"
             android:textFontWeight="700"
