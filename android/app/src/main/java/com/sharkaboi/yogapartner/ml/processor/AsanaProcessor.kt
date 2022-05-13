@@ -66,20 +66,20 @@ class AsanaProcessor(
             val mlImage = MediaMlImageBuilder(image.image!!)
                 .setRotation(image.imageInfo.rotationDegrees)
                 .build()
-            task = requestDetectInImage(
-                mlImage,
-                landMarksOverlay,
+            task = setClassificationCallbacks(
+                detectAndClassifyInMLImage(mlImage, isLoading),
                 frameStartMs,
-                onInference,
-                isLoading
+                landMarksOverlay,
+                onInference
             )
         } else {
-            task = requestDetectInImage(
-                InputImage.fromMediaImage(image.image!!, image.imageInfo.rotationDegrees),
-                landMarksOverlay,
+            val inputImage =
+                InputImage.fromMediaImage(image.image!!, image.imageInfo.rotationDegrees)
+            task = setClassificationCallbacks(
+                detectAndClassifyInInputImage(inputImage, isLoading),
                 frameStartMs,
-                onInference,
-                isLoading
+                landMarksOverlay,
+                onInference
             )
         }
 
@@ -91,39 +91,7 @@ class AsanaProcessor(
         task.addOnCompleteListener { image.close() }
     }
 
-    // For InputImage input
-    private fun requestDetectInImage(
-        image: InputImage,
-        landMarksOverlay: LandMarksOverlay,
-        frameStartMs: Long,
-        onInference: (PoseWithClassification) -> Unit,
-        isLoading: (Boolean) -> Unit
-    ): Task<PoseWithClassification> {
-        return setUpListener(
-            detectInInputImage(image, isLoading),
-            frameStartMs,
-            landMarksOverlay,
-            onInference
-        )
-    }
-
-    // For MlImage input
-    private fun requestDetectInImage(
-        image: MlImage,
-        landMarksOverlay: LandMarksOverlay,
-        frameStartMs: Long,
-        onInference: (PoseWithClassification) -> Unit,
-        isLoading: (Boolean) -> Unit
-    ): Task<PoseWithClassification> {
-        return setUpListener(
-            detectInMLImage(image, isLoading),
-            frameStartMs,
-            landMarksOverlay,
-            onInference
-        )
-    }
-
-    private fun setUpListener(
+    private fun setClassificationCallbacks(
         task: Task<PoseWithClassification>,
         frameStartMs: Long,
         landMarksOverlay: LandMarksOverlay,
@@ -136,20 +104,19 @@ class AsanaProcessor(
                 detectorStartMs
             )
             landMarksOverlay.clear()
-            onSuccess(results, landMarksOverlay, onInference)
+            onInference(results)
+            landMarksOverlay.setPose(results.pose)
             landMarksOverlay.postInvalidate()
         }.addOnFailureListener(mainThreadUiExecutor) { e: Exception ->
             landMarksOverlay.clear()
-            landMarksOverlay.postInvalidate()
             val error = "Failed to process. Error: " + e.localizedMessage
             landMarksOverlay.context.showToast("$error \nCause: ${e.cause}")
-            Timber.d(error)
+            Timber.d("Pose detection failed! $error")
             e.printStackTrace()
-            onFailure(e)
         }
     }
 
-    private fun detectInInputImage(
+    private fun detectAndClassifyInInputImage(
         image: InputImage,
         isLoading: (Boolean) -> Unit
     ): Task<PoseWithClassification> {
@@ -167,7 +134,7 @@ class AsanaProcessor(
         }
     }
 
-    private fun detectInMLImage(
+    private fun detectAndClassifyInMLImage(
         image: MlImage,
         isLoading: (Boolean) -> Unit
     ): Task<PoseWithClassification> {
@@ -190,19 +157,6 @@ class AsanaProcessor(
         isShutdown = true
         latencyLogger.reset()
         detector.close()
-    }
-
-    private fun onSuccess(
-        results: PoseWithClassification,
-        landMarksOverlay: LandMarksOverlay,
-        onInference: (PoseWithClassification) -> Unit
-    ) {
-        onInference(results)
-        landMarksOverlay.setPose(results.pose)
-    }
-
-    private fun onFailure(e: Exception) {
-        Timber.d("Pose detection failed!", e)
     }
 
     private fun lazyLoadSamples(isLoading: (Boolean) -> Unit) {
