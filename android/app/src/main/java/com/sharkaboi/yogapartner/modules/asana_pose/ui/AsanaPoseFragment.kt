@@ -13,12 +13,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.google.mlkit.common.MlKitException
+import com.google.mlkit.vision.pose.Pose
 import com.sharkaboi.yogapartner.common.extensions.capitalizeFirst
 import com.sharkaboi.yogapartner.common.extensions.observe
 import com.sharkaboi.yogapartner.common.extensions.showToast
 import com.sharkaboi.yogapartner.databinding.FragmentAsanaPoseBinding
 import com.sharkaboi.yogapartner.ml.log.LatencyLogger
+import com.sharkaboi.yogapartner.ml.models.PoseWithClassification
 import com.sharkaboi.yogapartner.ml.processor.AsanaProcessor
 import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.LandMarksOverlay
 import com.sharkaboi.yogapartner.modules.asana_pose.vm.AsanaPoseViewModel
@@ -34,6 +35,7 @@ class AsanaPoseFragment : Fragment() {
     private val binding get() = _binding!!
     private val asanaPoseViewModel by viewModels<AsanaPoseViewModel>()
     private val navController get() = findNavController()
+    private val mainExecutor get() = ContextCompat.getMainExecutor(requireContext())
 
     private val previewView: PreviewView get() = binding.previewView
     private val landMarksOverlay: LandMarksOverlay get() = binding.landmarksOverlay
@@ -128,15 +130,16 @@ class AsanaPoseFragment : Fragment() {
         if (cameraProvider != null) {
             // As required by CameraX API, unbinds all use cases before trying to re-bind any of them.
             cameraProvider!!.unbindAll()
-            bindPreviewUseCase()
+            setCameraPreviewToSurfaceView()
             bindAnalysisUseCase()
         }
     }
 
-    private fun bindPreviewUseCase() {
+    private fun setCameraPreviewToSurfaceView() {
         if (cameraProvider == null) {
             return
         }
+
         if (previewUseCase != null) {
             cameraProvider!!.unbind(previewUseCase)
         }
@@ -151,9 +154,11 @@ class AsanaPoseFragment : Fragment() {
         if (cameraProvider == null) {
             return
         }
+
         if (analysisUseCase != null) {
             cameraProvider!!.unbind(analysisUseCase)
         }
+
         if (asanaProcessor != null) {
             asanaProcessor!!.stop()
         }
@@ -176,47 +181,58 @@ class AsanaPoseFragment : Fragment() {
 
         needUpdateGraphicOverlayImageSourceInfo = true
 
-        analysisUseCase?.setAnalyzer(
-            // imageProcessor.processImageProxy will use another thread to run the detection underneath,
-            // thus we can just runs the analyzer itself on main thread.
-            ContextCompat.getMainExecutor(requireContext()),
-            { imageProxy: ImageProxy ->
-                if (needUpdateGraphicOverlayImageSourceInfo) {
-                    val isImageFlipped = lensFacing == CameraSelector.LENS_FACING_FRONT
-                    val rotationDegrees = imageProxy.imageInfo.rotationDegrees
-                    if (rotationDegrees == 0 || rotationDegrees == 180) {
-                        landMarksOverlay.setImageSourceInfo(
-                            imageProxy.width,
-                            imageProxy.height,
-                            isImageFlipped
-                        )
-                    } else {
-                        landMarksOverlay.setImageSourceInfo(
-                            imageProxy.height,
-                            imageProxy.width,
-                            isImageFlipped
-                        )
-                    }
-                    needUpdateGraphicOverlayImageSourceInfo = false
-                }
-                try {
-                    asanaProcessor!!.processImageProxy(
-                        imageProxy, landMarksOverlay,
-                        onInference = {
-                            binding.tvInference.text =
-                                it.classificationResult.getFormattedString().capitalizeFirst()
-                        }, isLoading = {
-                            lifecycleScope.launch(Dispatchers.Main) {
-                                binding.progress.isVisible = it
-                            }
-                        })
-                } catch (e: MlKitException) {
-                    Timber.d("Failed to process image. Error: " + e.localizedMessage)
-                    showToast(e.localizedMessage)
-                }
-            }
-        )
+        analysisUseCase?.setAnalyzer(mainExecutor) { imageProxy: ImageProxy ->
+            handleImageProxy(imageProxy)
+        }
         binding.landmarksOverlay.clear()
         cameraProvider!!.bindToLifecycle(viewLifecycleOwner, cameraSelector!!, analysisUseCase)
+    }
+
+    private fun handleImageProxy(imageProxy: ImageProxy) {
+        if (needUpdateGraphicOverlayImageSourceInfo) {
+            val isImageFlipped = lensFacing == CameraSelector.LENS_FACING_FRONT
+            val rotationDegrees = imageProxy.imageInfo.rotationDegrees
+            if (rotationDegrees == 0 || rotationDegrees == 180) {
+                landMarksOverlay.setImageSourceInfo(
+                    imageProxy.width,
+                    imageProxy.height,
+                    isImageFlipped
+                )
+            } else {
+                landMarksOverlay.setImageSourceInfo(
+                    imageProxy.height,
+                    imageProxy.width,
+                    isImageFlipped
+                )
+            }
+            needUpdateGraphicOverlayImageSourceInfo = false
+        }
+        try {
+            asanaProcessor!!.processImageProxy(
+                imageProxy,
+                landMarksOverlay,
+                onInference = ::onInference,
+                isLoading = ::isLoadingCallback
+            )
+        } catch (e: Exception) {
+            Timber.d("Failed to process image. Error: " + e.localizedMessage)
+            showToast(e.localizedMessage)
+        }
+    }
+
+    private fun isLoadingCallback(isLoading: Boolean) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            binding.progress.isVisible = isLoading
+        }
+    }
+
+    private fun onInference(poseWithClassification: PoseWithClassification) {
+        binding.tvInference.text =
+            poseWithClassification.classificationResult.getFormattedString().capitalizeFirst()
+        checkDistanceFromCamera(poseWithClassification.pose)
+    }
+
+    private fun checkDistanceFromCamera(pose: Pose) {
+        // TODO: 13-05-2022 if main points have less than threshold confidence, show far away from screen msg
     }
 }
