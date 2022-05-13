@@ -4,4 +4,5 @@
     <string name="app_name_formatted">Yoga Partner</string>
     <string name="capture_your_pose">Capture your pose</string>
     <string name="not_confident_message">Please position yourself within the frame and keep the phone 3–6ft away with good lighting conditions.</string>
+    <string name="unknown">Unknown</string>
 </resources>
