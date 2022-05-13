@@ -24,6 +24,7 @@ import com.sharkaboi.yogapartner.ml.log.LatencyLogger
 import com.sharkaboi.yogapartner.ml.models.PoseWithAsanaClassification
 import com.sharkaboi.yogapartner.ml.processor.AsanaProcessor
 import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.LandMarksOverlay
+import com.sharkaboi.yogapartner.modules.asana_pose.util.ResultSmoother
 import com.sharkaboi.yogapartner.modules.asana_pose.vm.AsanaPoseViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -38,6 +39,7 @@ class AsanaPoseFragment : Fragment() {
     private val asanaPoseViewModel by viewModels<AsanaPoseViewModel>()
     private val navController get() = findNavController()
     private val mainExecutor get() = ContextCompat.getMainExecutor(requireContext())
+    private val resultSmoother = ResultSmoother()
 
     private val previewView: PreviewView get() = binding.previewView
     private val landMarksOverlay: LandMarksOverlay get() = binding.landmarksOverlay
@@ -164,6 +166,8 @@ class AsanaPoseFragment : Fragment() {
             asanaProcessor!!.stop()
         }
 
+        resultSmoother.clearCache()
+
         try {
             asanaProcessor = AsanaProcessor(
                 requireContext(),
@@ -228,9 +232,9 @@ class AsanaPoseFragment : Fragment() {
     }
 
     private fun onInference(poseWithAsanaClassification: PoseWithAsanaClassification) {
-        // TODO: 13-05-2022 smoothen result with debounce
+        resultSmoother.setInferredPose(poseWithAsanaClassification.classificationResult)
         binding.tvInference.text =
-            poseWithAsanaClassification.classificationResult.getFormattedString().capitalizeFirst()
+            resultSmoother.getMajorityPose().getFormattedString().capitalizeFirst()
         checkDistanceFromCamera(poseWithAsanaClassification.pose)
     }
 
