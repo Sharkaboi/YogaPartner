@@ -39,7 +39,7 @@ class AsanaProcessor(
     // Whether this processor is already shut down
     private var isShutdown = false
 
-    private val mainThreadUiExecutor = DetectorScopedExecutor(TaskExecutors.MAIN_THREAD)
+    private val mainThreadUiExecutor = CancellableExecutor(TaskExecutors.MAIN_THREAD)
 
     private val classificationExecutor = Executors.newSingleThreadExecutor()
     private var poseClassifier: PoseClassifier? = null
