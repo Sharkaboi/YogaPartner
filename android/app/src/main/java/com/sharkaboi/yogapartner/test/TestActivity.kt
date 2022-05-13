@@ -15,7 +15,7 @@ import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
 import com.sharkaboi.yogapartner.R
 import com.sharkaboi.yogapartner.common.extensions.await
-import com.sharkaboi.yogapartner.ml.classification.PoseClass
+import com.sharkaboi.yogapartner.ml.classification.AsanaClass
 import com.sharkaboi.yogapartner.ml.classification.PoseClassifier
 import com.sharkaboi.yogapartner.ml.models.TrainedPoseSample
 import kotlinx.coroutines.launch
@@ -39,7 +39,7 @@ class TestActivity : AppCompatActivity() {
             btn?.text = "Running"
             btn?.isEnabled = false
             initPoseSamples()
-            val testImages: List<Pair<PoseClass, File>> = getTestData()
+            val testImages: List<Pair<AsanaClass, File>> = getTestData()
             runClassifierOnTestingDataOnAccurateDetectorWithGpu(testImages)
 //            runClassifierOnTestingDataOnAccurateDetectorWithoutGpu(testImages)
 //            runClassifierOnTestingDataOnFastDetectorWithGpu(testImages)
@@ -49,7 +49,7 @@ class TestActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun runClassifierOnTestingDataOnAccurateDetectorWithGpu(testImages: List<Pair<PoseClass, File>>) {
+    private suspend fun runClassifierOnTestingDataOnAccurateDetectorWithGpu(testImages: List<Pair<AsanaClass, File>>) {
         val builder: AccuratePoseDetectorOptions.Builder =
             AccuratePoseDetectorOptions.Builder()
                 .setDetectorMode(PoseDetectorOptions.STREAM_MODE)
@@ -62,7 +62,7 @@ class TestActivity : AppCompatActivity() {
         )
     }
 
-    private suspend fun runClassifierOnTestingDataOnAccurateDetectorWithoutGpu(testImages: List<Pair<PoseClass, File>>) {
+    private suspend fun runClassifierOnTestingDataOnAccurateDetectorWithoutGpu(testImages: List<Pair<AsanaClass, File>>) {
         val builder: AccuratePoseDetectorOptions.Builder =
             AccuratePoseDetectorOptions.Builder()
                 .setDetectorMode(PoseDetectorOptions.STREAM_MODE)
@@ -75,7 +75,7 @@ class TestActivity : AppCompatActivity() {
         )
     }
 
-    private suspend fun runClassifierOnTestingDataOnFastDetectorWithGpu(testImages: List<Pair<PoseClass, File>>) {
+    private suspend fun runClassifierOnTestingDataOnFastDetectorWithGpu(testImages: List<Pair<AsanaClass, File>>) {
         val builder =
             PoseDetectorOptions.Builder().setDetectorMode(PoseDetectorOptions.STREAM_MODE)
         builder.setPreferredHardwareConfigs(PoseDetectorOptions.CPU_GPU)
@@ -87,7 +87,7 @@ class TestActivity : AppCompatActivity() {
         )
     }
 
-    private suspend fun runClassifierOnTestingDataOnFastDetectorWithoutGpu(testImages: List<Pair<PoseClass, File>>) {
+    private suspend fun runClassifierOnTestingDataOnFastDetectorWithoutGpu(testImages: List<Pair<AsanaClass, File>>) {
         val builder =
             PoseDetectorOptions.Builder().setDetectorMode(PoseDetectorOptions.STREAM_MODE)
         builder.setPreferredHardwareConfigs(PoseDetectorOptions.CPU)
@@ -124,15 +124,15 @@ class TestActivity : AppCompatActivity() {
         poseSamples = trainedPoseSamples
     }
 
-    private fun getTestData(): List<Pair<PoseClass, File>> {
+    private fun getTestData(): List<Pair<AsanaClass, File>> {
         Timber.d("getTestData")
-        val testingData = mutableListOf<Pair<PoseClass, File>>()
+        val testingData = mutableListOf<Pair<AsanaClass, File>>()
         val downloadFolder =
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         val testFolder = File(downloadFolder!!.absolutePath + File.separator + "v1")
         testFolder.listFiles()?.forEach { classFolder ->
             Timber.d("getTestData class : ${classFolder.name} ")
-            val label = PoseClass.valueOf(classFolder.name)
+            val label = AsanaClass.valueOf(classFolder.name)
             val images = classFolder.listFiles().orEmpty()
             val sampleCount = images.count()
             val takeCount = (sampleCount * testSampleSizeRatio).toInt()
@@ -144,7 +144,7 @@ class TestActivity : AppCompatActivity() {
 
     private suspend fun runDetection(
         detector: PoseDetector,
-        image: Pair<PoseClass, File>
+        image: Pair<AsanaClass, File>
     ): Pose {
         val bitmap = BitmapFactory.decodeFile(image.second.absolutePath)
         val mlImage = BitmapMlImageBuilder(bitmap).build()
@@ -154,7 +154,7 @@ class TestActivity : AppCompatActivity() {
         return pose
     }
 
-    private fun getClassification(landmarks: Pose): PoseClass {
+    private fun getClassification(landmarks: Pose): AsanaClass {
         val classifier = PoseClassifier(poseSamples)
         Timber.d("getClassifications")
         return classifier.classify(landmarks).getMaxConfidenceClass()
@@ -165,7 +165,7 @@ class TestActivity : AppCompatActivity() {
     private suspend fun getClassificationWithDetector(
         which: String,
         detector: PoseDetector,
-        testImages: List<Pair<PoseClass, File>>
+        testImages: List<Pair<AsanaClass, File>>
     ) {
         Timber.d("Testing $which")
         totalCount = testImages.count()
@@ -178,7 +178,7 @@ class TestActivity : AppCompatActivity() {
         logAccuracy(which)
     }
 
-    private fun log(expected: PoseClass, output: PoseClass) {
+    private fun log(expected: AsanaClass, output: AsanaClass) {
         Timber.d("$expected expected - output $output")
         if (expected == output) {
             correctCount++

@@ -21,7 +21,7 @@ import com.sharkaboi.yogapartner.common.extensions.showToast
 import com.sharkaboi.yogapartner.databinding.FragmentAsanaPoseBinding
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
 import com.sharkaboi.yogapartner.ml.log.LatencyLogger
-import com.sharkaboi.yogapartner.ml.models.PoseWithClassification
+import com.sharkaboi.yogapartner.ml.models.PoseWithAsanaClassification
 import com.sharkaboi.yogapartner.ml.processor.AsanaProcessor
 import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.LandMarksOverlay
 import com.sharkaboi.yogapartner.modules.asana_pose.vm.AsanaPoseViewModel
@@ -227,11 +227,11 @@ class AsanaPoseFragment : Fragment() {
         }
     }
 
-    private fun onInference(poseWithClassification: PoseWithClassification) {
+    private fun onInference(poseWithAsanaClassification: PoseWithAsanaClassification) {
         // TODO: 13-05-2022 smoothen result with debounce
         binding.tvInference.text =
-            poseWithClassification.classificationResult.getFormattedString().capitalizeFirst()
-        checkDistanceFromCamera(poseWithClassification.pose)
+            poseWithAsanaClassification.classificationResult.getFormattedString().capitalizeFirst()
+        checkDistanceFromCamera(poseWithAsanaClassification.pose)
     }
 
     private fun checkDistanceFromCamera(pose: Pose) {

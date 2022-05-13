@@ -17,11 +17,11 @@ import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseDetector
 import com.sharkaboi.yogapartner.R
 import com.sharkaboi.yogapartner.common.extensions.showToast
-import com.sharkaboi.yogapartner.ml.classification.PoseClass
+import com.sharkaboi.yogapartner.ml.classification.AsanaClass
 import com.sharkaboi.yogapartner.ml.classification.PoseClassifier
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
 import com.sharkaboi.yogapartner.ml.log.LatencyLogger
-import com.sharkaboi.yogapartner.ml.models.PoseWithClassification
+import com.sharkaboi.yogapartner.ml.models.PoseWithAsanaClassification
 import com.sharkaboi.yogapartner.ml.models.TrainedPoseSample
 import com.sharkaboi.yogapartner.ml.models.TrainedPoseSample.Companion.getPoseSample
 import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.LandMarksOverlay
@@ -52,7 +52,7 @@ class AsanaProcessor(
     fun processImageProxy(
         image: ImageProxy,
         landMarksOverlay: LandMarksOverlay,
-        onInference: (PoseWithClassification) -> Unit,
+        onInference: (PoseWithAsanaClassification) -> Unit,
         isLoading: (Boolean) -> Unit
     ) {
         val frameStartMs = SystemClock.elapsedRealtime()
@@ -61,7 +61,7 @@ class AsanaProcessor(
             return
         }
 
-        val task: Task<PoseWithClassification>
+        val task: Task<PoseWithAsanaClassification>
         if (DetectorOptions.getInstance().isMLImageEnabled()) {
             val mlImage = MediaMlImageBuilder(image.image!!)
                 .setRotation(image.imageInfo.rotationDegrees)
@@ -92,11 +92,11 @@ class AsanaProcessor(
     }
 
     private fun setClassificationCallbacks(
-        task: Task<PoseWithClassification>,
+        task: Task<PoseWithAsanaClassification>,
         frameStartMs: Long,
         landMarksOverlay: LandMarksOverlay,
-        onInference: (PoseWithClassification) -> Unit
-    ): Task<PoseWithClassification> {
+        onInference: (PoseWithAsanaClassification) -> Unit
+    ): Task<PoseWithAsanaClassification> {
         val detectorStartMs = SystemClock.elapsedRealtime()
         return task.addOnSuccessListener(mainThreadUiExecutor) { results ->
             latencyLogger.notifyDetectorFinished(
@@ -119,7 +119,7 @@ class AsanaProcessor(
     private fun detectAndClassifyInInputImage(
         image: InputImage,
         isLoading: (Boolean) -> Unit
-    ): Task<PoseWithClassification> {
+    ): Task<PoseWithAsanaClassification> {
         val detectorStart = SystemClock.elapsedRealtime()
         val processImageTask = detector.process(image).addOnCompleteListener {
             latencyLogger.logDetectionTime(detectorStart)
@@ -130,14 +130,14 @@ class AsanaProcessor(
             val classifierStart = SystemClock.elapsedRealtime()
             val classificationResult = classifyAsanaFromPose(pose)
             latencyLogger.logClassifierTime(classifierStart)
-            PoseWithClassification(pose, classificationResult)
+            PoseWithAsanaClassification(pose, classificationResult)
         }
     }
 
     private fun detectAndClassifyInMLImage(
         image: MlImage,
         isLoading: (Boolean) -> Unit
-    ): Task<PoseWithClassification> {
+    ): Task<PoseWithAsanaClassification> {
         val detectorStart = SystemClock.elapsedRealtime()
         val processImageTask = detector.process(image).addOnCompleteListener {
             latencyLogger.logDetectionTime(detectorStart)
@@ -148,7 +148,7 @@ class AsanaProcessor(
             val classifierStart = SystemClock.elapsedRealtime()
             val classificationResult = classifyAsanaFromPose(pose)
             latencyLogger.logClassifierTime(classifierStart)
-            PoseWithClassification(pose, classificationResult)
+            PoseWithAsanaClassification(pose, classificationResult)
         }
     }
 
@@ -171,7 +171,7 @@ class AsanaProcessor(
     }
 
     @WorkerThread
-    private fun classifyAsanaFromPose(pose: Pose): PoseClass {
+    private fun classifyAsanaFromPose(pose: Pose): AsanaClass {
         Preconditions.checkState(Looper.myLooper() != Looper.getMainLooper())
         val classification = poseClassifier!!.classify(pose)
 

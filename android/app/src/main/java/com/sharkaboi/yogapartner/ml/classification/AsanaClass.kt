@@ -1,7 +1,7 @@
 package com.sharkaboi.yogapartner.ml.classification
 
 @Suppress("EnumEntryName")
-enum class PoseClass {
+enum class AsanaClass {
     UNKNOWN,
     adho_mukha_svanasana,
     adho_mukha_vriksasana,

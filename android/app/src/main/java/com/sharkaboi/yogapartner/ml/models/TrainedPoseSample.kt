@@ -5,9 +5,6 @@ import com.google.mlkit.vision.common.PointF3D
 import com.sharkaboi.yogapartner.ml.utils.PoseEmbeddingUtils
 import timber.log.Timber
 
-/**
- * Reads Pose samples from a csv file.
- */
 data class TrainedPoseSample(
     val name: String,
     val className: String,
