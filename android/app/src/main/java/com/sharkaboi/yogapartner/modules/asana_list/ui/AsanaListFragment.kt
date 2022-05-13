@@ -41,6 +41,7 @@ class AsanaListFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        binding.rvAsanas.adapter = null
         _binding = null
         super.onDestroyView()
     }
