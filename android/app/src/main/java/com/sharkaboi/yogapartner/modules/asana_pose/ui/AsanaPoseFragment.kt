@@ -260,5 +260,8 @@ class AsanaPoseFragment : Fragment() {
                 || landmarkType == PoseLandmark.RIGHT_KNEE
                 || landmarkType == PoseLandmark.LEFT_ANKLE
                 || landmarkType == PoseLandmark.RIGHT_ANKLE
+                || landmarkType == PoseLandmark.NOSE
+                || landmarkType == PoseLandmark.RIGHT_FOOT_INDEX
+                || landmarkType == PoseLandmark.LEFT_FOOT_INDEX
     }
 }
