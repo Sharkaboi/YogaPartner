@@ -9,6 +9,11 @@ import java.nio.ByteBuffer
 
 class TFLiteAsanaClassifier(private val model: ConvertedModel) : IAsanaClassifier {
     override fun classify(pose: Pose): ClassificationResult {
+        val classificationResult = ClassificationResult()
+        if (pose.allPoseLandmarks.isEmpty()) {
+            return classificationResult
+        }
+
         val inputFeature = TensorBuffer.createFixedSize(intArrayOf(1, 69), DataType.FLOAT32)
         val inputPose =
             PoseEmbeddingUtils.getPoseEmbedding(pose.allPoseLandmarks.map { it.position3D })
@@ -33,7 +38,6 @@ class TFLiteAsanaClassifier(private val model: ConvertedModel) : IAsanaClassifie
             AsanaClass.upavistha_konasana,
             AsanaClass.adho_mukha_svanasana
         )
-        val classificationResult = ClassificationResult()
         output.floatArray.forEachIndexed { index: Int, fl: Float ->
             classificationResult.putClassConfidence(classes[index], fl)
         }
