@@ -167,6 +167,7 @@ class AsanaProcessor(
             loadPoseSamplesFromDisk()
             latencyLogger.logSampleLoadTime(sampleLoadStart)
         }
+        classifier?.close()
         classifier = DetectorOptions.getInstance().getClassifier(poseSamples)
         isLoading(false)
     }

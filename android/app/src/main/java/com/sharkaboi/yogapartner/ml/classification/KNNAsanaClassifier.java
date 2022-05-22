@@ -71,6 +71,11 @@ public class KNNAsanaClassifier implements IAsanaClassifier {
     return min(maxDistanceTopK, meanDistanceTopK);
   }
 
+    @Override
+    public void close() {
+        // Nothing
+    }
+
   @NonNull
   public ClassificationResult classify(@NonNull Pose pose) {
     return classify(extractPoseLandmarks(pose));

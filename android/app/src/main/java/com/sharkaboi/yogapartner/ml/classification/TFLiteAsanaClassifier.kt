@@ -46,4 +46,8 @@ class TFLiteAsanaClassifier(private val model: ConvertedModel) : IAsanaClassifie
     override fun confidenceRange(): Float {
         return 0.01f
     }
+
+    override fun close() {
+        model.close()
+    }
 }
