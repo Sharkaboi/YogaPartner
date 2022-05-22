@@ -27,6 +27,6 @@ class ResultSmoother {
     }
 
     companion object {
-        private const val FLUSH_FRAME_COUNT = 30
+        private const val FLUSH_FRAME_COUNT = 60
     }
 }
