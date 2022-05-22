@@ -31,136 +31,138 @@ import java.util.PriorityQueue;
  * https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm
  */
 public class KNNAsanaClassifier implements IAsanaClassifier {
-  private static final int MAX_DISTANCE_TOP_K = 30;
-  private static final int MEAN_DISTANCE_TOP_K = 10;
-  // Note Z has a lower weight as it is generally less accurate than X & Y.
-  private static final PointF3D AXES_WEIGHTS = PointF3D.from(1, 1, 0.2f);
+    private static final int MAX_DISTANCE_TOP_K = 30;
+    private static final int MEAN_DISTANCE_TOP_K = 10;
+    // Note Z has a lower weight as it is generally less accurate than X & Y.
+    private static final PointF3D AXES_WEIGHTS = PointF3D.from(1, 1, 0.2f);
 
-  private final List<TrainedPoseSample> trainedPoseSamples;
-  private final int maxDistanceTopK;
-  private final int meanDistanceTopK;
-  private final PointF3D axesWeights;
+    private final List<TrainedPoseSample> trainedPoseSamples;
+    private final int maxDistanceTopK;
+    private final int meanDistanceTopK;
+    private final PointF3D axesWeights;
 
-  public KNNAsanaClassifier(List<TrainedPoseSample> trainedPoseSamples) {
-    this(trainedPoseSamples, MAX_DISTANCE_TOP_K, MEAN_DISTANCE_TOP_K, AXES_WEIGHTS);
-  }
-
-  public KNNAsanaClassifier(List<TrainedPoseSample> trainedPoseSamples, int maxDistanceTopK,
-                            int meanDistanceTopK, PointF3D axesWeights) {
-    this.trainedPoseSamples = trainedPoseSamples;
-    this.maxDistanceTopK = maxDistanceTopK;
-    this.meanDistanceTopK = meanDistanceTopK;
-    this.axesWeights = axesWeights;
-  }
-
-  private static List<PointF3D> extractPoseLandmarks(Pose pose) {
-    List<PointF3D> landmarks = new ArrayList<>();
-    for (PoseLandmark poseLandmark : pose.getAllPoseLandmarks()) {
-      landmarks.add(poseLandmark.getPosition3D());
+    public KNNAsanaClassifier(List<TrainedPoseSample> trainedPoseSamples) {
+        this(trainedPoseSamples, MAX_DISTANCE_TOP_K, MEAN_DISTANCE_TOP_K, AXES_WEIGHTS);
     }
-    return landmarks;
-  }
 
-  /**
-   * Returns the max range of confidence values.
-   *
-   * <p><Since we calculate confidence by counting {@link TrainedPoseSample}s that survived
-   * outlier-filtering by maxDistanceTopK and meanDistanceTopK, this range is the minimum of two.
-   */
-  public float confidenceRange() {
-    return min(maxDistanceTopK, meanDistanceTopK);
-  }
+    public KNNAsanaClassifier(List<TrainedPoseSample> trainedPoseSamples, int maxDistanceTopK,
+                              int meanDistanceTopK, PointF3D axesWeights) {
+        this.trainedPoseSamples = trainedPoseSamples;
+        this.maxDistanceTopK = maxDistanceTopK;
+        this.meanDistanceTopK = meanDistanceTopK;
+        this.axesWeights = axesWeights;
+    }
+
+    private static List<PointF3D> extractPoseLandmarks(Pose pose) {
+        List<PointF3D> landmarks = new ArrayList<>();
+        for (PoseLandmark poseLandmark : pose.getAllPoseLandmarks()) {
+            landmarks.add(poseLandmark.getPosition3D());
+        }
+        return landmarks;
+    }
+
+    /**
+     * Returns the max range of confidence values.
+     *
+     * <p><Since we calculate confidence by counting {@link TrainedPoseSample}s that survived
+     * outlier-filtering by maxDistanceTopK and meanDistanceTopK, this range is the minimum of two.
+     */
+    @Override
+    public float confidenceRange() {
+        return min(maxDistanceTopK, meanDistanceTopK);
+    }
 
     @Override
     public void close() {
         // Nothing
     }
 
-  @NonNull
-  public ClassificationResult classify(@NonNull Pose pose) {
-    return classify(extractPoseLandmarks(pose));
-  }
-
-  public ClassificationResult classify(List<PointF3D> landmarks) {
-    ClassificationResult result = new ClassificationResult();
-    // Return early if no landmarks detected.
-    if (landmarks.isEmpty()) {
-      return result;
+    @NonNull
+    @Override
+    public ClassificationResult classify(@NonNull Pose pose) {
+        return classify(extractPoseLandmarks(pose));
     }
 
-    // We do flipping on X-axis so we are horizontal (mirror) invariant.
-    List<PointF3D> flippedLandmarks = new ArrayList<>(landmarks);
-    multiplyAll(flippedLandmarks, PointF3D.from(-1, 1, 1));
+    public ClassificationResult classify(List<PointF3D> landmarks) {
+        ClassificationResult result = new ClassificationResult();
+        // Return early if no landmarks detected.
+        if (landmarks.isEmpty()) {
+            return result;
+        }
 
-    List<PointF3D> embedding = PoseEmbeddingUtils.getPoseEmbedding(landmarks);
-    List<PointF3D> flippedEmbedding = PoseEmbeddingUtils.getPoseEmbedding(flippedLandmarks);
+        // We do flipping on X-axis so we are horizontal (mirror) invariant.
+        List<PointF3D> flippedLandmarks = new ArrayList<>(landmarks);
+        multiplyAll(flippedLandmarks, PointF3D.from(-1, 1, 1));
+
+        List<PointF3D> embedding = PoseEmbeddingUtils.getPoseEmbedding(landmarks);
+        List<PointF3D> flippedEmbedding = PoseEmbeddingUtils.getPoseEmbedding(flippedLandmarks);
 
 
-    // Classification is done in two stages:
-    //  * First we pick top-K samples by MAX distance. It allows to remove samples that are almost
-    //    the same as given pose, but maybe has few joints bent in the other direction.
-    //  * Then we pick top-K samples by MEAN distance. After outliers are removed, we pick samples
-    //    that are closest by average.
+        // Classification is done in two stages:
+        //  * First we pick top-K samples by MAX distance. It allows to remove samples that are almost
+        //    the same as given pose, but maybe has few joints bent in the other direction.
+        //  * Then we pick top-K samples by MEAN distance. After outliers are removed, we pick samples
+        //    that are closest by average.
 
-    // Keeps max distance on top so we can pop it when top_k size is reached.
-    PriorityQueue<Pair<TrainedPoseSample, Float>> maxDistances = new PriorityQueue<>(
-        maxDistanceTopK, (o1, o2) -> -Float.compare(o1.second, o2.second));
-    // Retrieve top K poseSamples by least distance to remove outliers.
-    for (TrainedPoseSample trainedPoseSample : trainedPoseSamples) {
-      List<PointF3D> sampleEmbedding = trainedPoseSample.getEmbedding();
+        // Keeps max distance on top so we can pop it when top_k size is reached.
+        PriorityQueue<Pair<TrainedPoseSample, Float>> maxDistances = new PriorityQueue<>(
+                maxDistanceTopK, (o1, o2) -> -Float.compare(o1.second, o2.second));
+        // Retrieve top K poseSamples by least distance to remove outliers.
+        for (TrainedPoseSample trainedPoseSample : trainedPoseSamples) {
+            List<PointF3D> sampleEmbedding = trainedPoseSample.getEmbedding();
 
-      float originalMax = 0;
-      float flippedMax = 0;
-      for (int i = 0; i < embedding.size(); i++) {
-        originalMax =
-            max(
-                originalMax,
-                maxAbs(multiply(subtract(embedding.get(i), sampleEmbedding.get(i)), axesWeights)));
-        flippedMax =
-            max(
-                flippedMax,
-                maxAbs(
-                    multiply(
-                        subtract(flippedEmbedding.get(i), sampleEmbedding.get(i)), axesWeights)));
-      }
-      // Set the max distance as min of original and flipped max distance.
-      maxDistances.add(new Pair<>(trainedPoseSample, min(originalMax, flippedMax)));
-      // We only want to retain top n so pop the highest distance.
-      if (maxDistances.size() > maxDistanceTopK) {
-        maxDistances.poll();
-      }
+            float originalMax = 0;
+            float flippedMax = 0;
+            for (int i = 0; i < embedding.size(); i++) {
+                originalMax =
+                        max(
+                                originalMax,
+                                maxAbs(multiply(subtract(embedding.get(i), sampleEmbedding.get(i)), axesWeights)));
+                flippedMax =
+                        max(
+                                flippedMax,
+                                maxAbs(
+                                        multiply(
+                                                subtract(flippedEmbedding.get(i), sampleEmbedding.get(i)), axesWeights)));
+            }
+            // Set the max distance as min of original and flipped max distance.
+            maxDistances.add(new Pair<>(trainedPoseSample, min(originalMax, flippedMax)));
+            // We only want to retain top n so pop the highest distance.
+            if (maxDistances.size() > maxDistanceTopK) {
+                maxDistances.poll();
+            }
+        }
+
+        // Keeps higher mean distances on top so we can pop it when top_k size is reached.
+        PriorityQueue<Pair<TrainedPoseSample, Float>> meanDistances = new PriorityQueue<>(
+                meanDistanceTopK, (o1, o2) -> -Float.compare(o1.second, o2.second));
+        // Retrive top K poseSamples by least mean distance to remove outliers.
+        for (Pair<TrainedPoseSample, Float> sampleDistances : maxDistances) {
+            TrainedPoseSample trainedPoseSample = sampleDistances.first;
+            List<PointF3D> sampleEmbedding = trainedPoseSample.getEmbedding();
+
+            float originalSum = 0;
+            float flippedSum = 0;
+            for (int i = 0; i < embedding.size(); i++) {
+                originalSum += sumAbs(multiply(
+                        subtract(embedding.get(i), sampleEmbedding.get(i)), axesWeights));
+                flippedSum += sumAbs(
+                        multiply(subtract(flippedEmbedding.get(i), sampleEmbedding.get(i)), axesWeights));
+            }
+            // Set the mean distance as min of original and flipped mean distances.
+            float meanDistance = min(originalSum, flippedSum) / (embedding.size() * 2);
+            meanDistances.add(new Pair<>(trainedPoseSample, meanDistance));
+            // We only want to retain top k so pop the highest mean distance.
+            if (meanDistances.size() > meanDistanceTopK) {
+                meanDistances.poll();
+            }
+        }
+
+        for (Pair<TrainedPoseSample, Float> sampleDistances : meanDistances) {
+            String className = sampleDistances.first.getClassName();
+            result.incrementClassConfidence(className);
+        }
+
+        return result;
     }
-
-    // Keeps higher mean distances on top so we can pop it when top_k size is reached.
-    PriorityQueue<Pair<TrainedPoseSample, Float>> meanDistances = new PriorityQueue<>(
-        meanDistanceTopK, (o1, o2) -> -Float.compare(o1.second, o2.second));
-    // Retrive top K poseSamples by least mean distance to remove outliers.
-    for (Pair<TrainedPoseSample, Float> sampleDistances : maxDistances) {
-      TrainedPoseSample trainedPoseSample = sampleDistances.first;
-      List<PointF3D> sampleEmbedding = trainedPoseSample.getEmbedding();
-
-      float originalSum = 0;
-      float flippedSum = 0;
-      for (int i = 0; i < embedding.size(); i++) {
-        originalSum += sumAbs(multiply(
-            subtract(embedding.get(i), sampleEmbedding.get(i)), axesWeights));
-        flippedSum += sumAbs(
-            multiply(subtract(flippedEmbedding.get(i), sampleEmbedding.get(i)), axesWeights));
-      }
-      // Set the mean distance as min of original and flipped mean distances.
-      float meanDistance = min(originalSum, flippedSum) / (embedding.size() * 2);
-      meanDistances.add(new Pair<>(trainedPoseSample, meanDistance));
-      // We only want to retain top k so pop the highest mean distance.
-      if (meanDistances.size() > meanDistanceTopK) {
-        meanDistances.poll();
-      }
-    }
-
-    for (Pair<TrainedPoseSample, Float> sampleDistances : meanDistances) {
-      String className = sampleDistances.first.getClassName();
-      result.incrementClassConfidence(className);
-    }
-
-    return result;
-  }
 }
