@@ -5,7 +5,6 @@ import com.sharkaboi.yogapartner.ml.ConvertedModel
 import com.sharkaboi.yogapartner.ml.utils.PoseEmbeddingUtils
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
-import java.nio.ByteBuffer
 
 class TFLiteAsanaClassifier(private val model: ConvertedModel) : IAsanaClassifier {
     override fun classify(pose: Pose): ClassificationResult {
@@ -17,13 +16,13 @@ class TFLiteAsanaClassifier(private val model: ConvertedModel) : IAsanaClassifie
         val inputFeature = TensorBuffer.createFixedSize(intArrayOf(1, 69), DataType.FLOAT32)
         val inputPose =
             PoseEmbeddingUtils.getPoseEmbedding(pose.allPoseLandmarks.map { it.position3D })
-        val unzippedList = ByteBuffer.allocate(inputPose.size * 3)
+        val unzippedList = mutableListOf<Float>()
         inputPose.forEach {
-            unzippedList.putFloat(it.x)
-            unzippedList.putFloat(it.y)
-            unzippedList.putFloat(it.z)
+            unzippedList.add(it.x)
+            unzippedList.add(it.y)
+            unzippedList.add(it.z)
         }
-        inputFeature.loadBuffer(unzippedList)
+        inputFeature.loadArray(unzippedList.toFloatArray())
         val outputs = model.process(inputFeature)
         val output = outputs.outputFeature0AsTensorBuffer
         val classes = listOf(
