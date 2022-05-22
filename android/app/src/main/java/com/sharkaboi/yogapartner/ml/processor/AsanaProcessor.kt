@@ -18,7 +18,7 @@ import com.google.mlkit.vision.pose.PoseDetector
 import com.sharkaboi.yogapartner.R
 import com.sharkaboi.yogapartner.common.extensions.showToast
 import com.sharkaboi.yogapartner.ml.classification.AsanaClass
-import com.sharkaboi.yogapartner.ml.classification.PoseClassifier
+import com.sharkaboi.yogapartner.ml.classification.IAsanaClassifier
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
 import com.sharkaboi.yogapartner.ml.log.LatencyLogger
 import com.sharkaboi.yogapartner.ml.models.PoseWithAsanaClassification
@@ -43,7 +43,7 @@ class AsanaProcessor(
     private val mainThreadUiExecutor = CancellableExecutor(TaskExecutors.MAIN_THREAD)
 
     private val classificationExecutor = Executors.newSingleThreadExecutor()
-    private var poseClassifier: PoseClassifier? = null
+    private var classifier: IAsanaClassifier? = null
 
     private val detector: PoseDetector = PoseDetection.getClient(
         DetectorOptions.getInstance().getOption()
@@ -167,18 +167,18 @@ class AsanaProcessor(
             loadPoseSamplesFromDisk()
             latencyLogger.logSampleLoadTime(sampleLoadStart)
         }
-        poseClassifier = PoseClassifier(poseSamples)
+        classifier = DetectorOptions.getInstance().getClassifier(poseSamples)
         isLoading(false)
     }
 
     @WorkerThread
     private fun classifyAsanaFromPose(pose: Pose): AsanaClass {
         Preconditions.checkState(Looper.myLooper() != Looper.getMainLooper())
-        val classification = poseClassifier!!.classify(pose)
+        val classification = classifier!!.classify(pose)
 
         val maxConfidenceClass = classification.getMaxConfidenceClass()
         val confidence = (classification.getClassConfidence(maxConfidenceClass)
-                / poseClassifier!!.confidenceRange())
+                / classifier!!.confidenceRange())
         return maxConfidenceClass
     }
 

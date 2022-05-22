@@ -16,7 +16,7 @@ import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
 import com.sharkaboi.yogapartner.R
 import com.sharkaboi.yogapartner.common.extensions.await
 import com.sharkaboi.yogapartner.ml.classification.AsanaClass
-import com.sharkaboi.yogapartner.ml.classification.PoseClassifier
+import com.sharkaboi.yogapartner.ml.config.DetectorOptions
 import com.sharkaboi.yogapartner.ml.models.TrainedPoseSample
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -155,7 +155,7 @@ class TestActivity : AppCompatActivity() {
     }
 
     private fun getClassification(landmarks: Pose): AsanaClass {
-        val classifier = PoseClassifier(poseSamples)
+        val classifier = DetectorOptions.getInstance().getClassifier(poseSamples)
         Timber.d("getClassifications")
         return classifier.classify(landmarks).getMaxConfidenceClass()
     }

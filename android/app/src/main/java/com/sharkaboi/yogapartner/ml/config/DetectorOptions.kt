@@ -7,6 +7,9 @@ import com.google.mlkit.vision.pose.PoseDetectorOptionsBase
 import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
 import com.sharkaboi.yogapartner.common.extensions.getOrSetDefault
+import com.sharkaboi.yogapartner.ml.classification.IAsanaClassifier
+import com.sharkaboi.yogapartner.ml.classification.KNNAsanaClassifier
+import com.sharkaboi.yogapartner.ml.models.TrainedPoseSample
 
 class DetectorOptions private constructor() {
 
@@ -52,6 +55,11 @@ class DetectorOptions private constructor() {
 
     fun isMLImageEnabled(): Boolean {
         return sharedPrefs.getBoolean("isMlImage", true)
+    }
+
+    fun getClassifier(poseSamples: List<TrainedPoseSample>?): IAsanaClassifier {
+        return KNNAsanaClassifier(poseSamples)
+//        return TFLiteAsanaClassifier()
     }
 
     companion object {

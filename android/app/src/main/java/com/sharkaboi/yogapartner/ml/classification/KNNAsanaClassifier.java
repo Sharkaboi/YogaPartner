@@ -11,6 +11,9 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import android.util.Pair;
+
+import androidx.annotation.NonNull;
+
 import com.google.mlkit.vision.common.PointF3D;
 import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseLandmark;
@@ -27,7 +30,7 @@ import java.util.PriorityQueue;
  * <p>Inspired by K-Nearest Neighbors Algorithm with outlier filtering.
  * https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm
  */
-public class PoseClassifier {
+public class KNNAsanaClassifier implements IAsanaClassifier {
   private static final int MAX_DISTANCE_TOP_K = 30;
   private static final int MEAN_DISTANCE_TOP_K = 10;
   // Note Z has a lower weight as it is generally less accurate than X & Y.
@@ -38,12 +41,12 @@ public class PoseClassifier {
   private final int meanDistanceTopK;
   private final PointF3D axesWeights;
 
-  public PoseClassifier(List<TrainedPoseSample> trainedPoseSamples) {
+  public KNNAsanaClassifier(List<TrainedPoseSample> trainedPoseSamples) {
     this(trainedPoseSamples, MAX_DISTANCE_TOP_K, MEAN_DISTANCE_TOP_K, AXES_WEIGHTS);
   }
 
-  public PoseClassifier(List<TrainedPoseSample> trainedPoseSamples, int maxDistanceTopK,
-                        int meanDistanceTopK, PointF3D axesWeights) {
+  public KNNAsanaClassifier(List<TrainedPoseSample> trainedPoseSamples, int maxDistanceTopK,
+                            int meanDistanceTopK, PointF3D axesWeights) {
     this.trainedPoseSamples = trainedPoseSamples;
     this.maxDistanceTopK = maxDistanceTopK;
     this.meanDistanceTopK = meanDistanceTopK;
@@ -64,11 +67,12 @@ public class PoseClassifier {
    * <p><Since we calculate confidence by counting {@link TrainedPoseSample}s that survived
    * outlier-filtering by maxDistanceTopK and meanDistanceTopK, this range is the minimum of two.
    */
-  public int confidenceRange() {
+  public float confidenceRange() {
     return min(maxDistanceTopK, meanDistanceTopK);
   }
 
-  public ClassificationResult classify(Pose pose) {
+  @NonNull
+  public ClassificationResult classify(@NonNull Pose pose) {
     return classify(extractPoseLandmarks(pose));
   }
 
