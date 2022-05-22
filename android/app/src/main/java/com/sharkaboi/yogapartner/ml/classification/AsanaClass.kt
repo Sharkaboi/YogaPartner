@@ -94,6 +94,7 @@ enum class AsanaClass {
     urdhva_prasarita_eka_padasana,
     ustrasana,
     utkatasana,
+    utkata_konasana,
     uttanasana,
     uttana_shishosana,
     utthita_ashwa_sanchalanasana,
@@ -221,6 +222,7 @@ enum class AsanaClass {
             vriksasana -> "vriksasana"
             vrischikasana -> "vrischikasana"
             yoganidrasana -> "yoganidrasana"
+            utkata_konasana -> "utkata konasana"
         }
         return string
     }
