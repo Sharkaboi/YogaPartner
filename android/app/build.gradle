@@ -53,6 +53,7 @@ android {
 
     buildFeatures {
         viewBinding true
+        mlModelBinding true
     }
 
     // Do NOT compress tflite model files (need to call out to developers!)
@@ -94,6 +95,9 @@ dependencies {
     //hilt
     implementation "com.google.dagger:hilt-android:2.38.1"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'org.tensorflow:tensorflow-lite-support:0.1.0'
+    implementation 'org.tensorflow:tensorflow-lite-metadata:0.1.0'
+    implementation 'org.tensorflow:tensorflow-lite-gpu:2.3.0'
     kapt "com.google.dagger:hilt-compiler:2.38.1"
     //retrofit
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
