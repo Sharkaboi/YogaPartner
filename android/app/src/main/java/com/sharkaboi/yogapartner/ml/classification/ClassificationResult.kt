@@ -23,7 +23,7 @@ class ClassificationResult {
     // Gets first entry if same confidence
     fun getMaxConfidenceClass(): AsanaClass {
         return classConfidences.maxWithOrNull { e1, e2 ->
-            (e1.value - e2.value).toInt()
+            e1.value.compareTo(e2.value)
         }?.key ?: AsanaClass.UNKNOWN
     }
 
