@@ -186,7 +186,7 @@ class AsanaProcessor(
         val trainedPoseSamples: MutableList<TrainedPoseSample> = ArrayList()
         try {
             val reader = BufferedReader(
-                InputStreamReader(context.resources.openRawResource(R.raw.yoga_poses))
+                InputStreamReader(context.resources.openRawResource(R.raw.landmarks_107_classes))
             )
             var csvLine = reader.readLine()
             while (csvLine != null) {
