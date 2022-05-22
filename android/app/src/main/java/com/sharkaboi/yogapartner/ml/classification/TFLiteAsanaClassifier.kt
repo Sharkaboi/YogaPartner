@@ -1,6 +1,5 @@
 package com.sharkaboi.yogapartner.ml.classification
 
-import android.content.Context
 import com.google.mlkit.vision.pose.Pose
 import com.sharkaboi.yogapartner.ml.ConvertedModel
 import com.sharkaboi.yogapartner.ml.utils.PoseEmbeddingUtils
@@ -8,10 +7,7 @@ import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.nio.ByteBuffer
 
-class TFLiteAsanaClassifier(context: Context) : IAsanaClassifier {
-    private val model: ConvertedModel = ConvertedModel.newInstance(context)
-
-
+class TFLiteAsanaClassifier(private val model: ConvertedModel) : IAsanaClassifier {
     override fun classify(pose: Pose): ClassificationResult {
         val inputFeature = TensorBuffer.createFixedSize(intArrayOf(1, 69), DataType.FLOAT32)
         val inputPose =

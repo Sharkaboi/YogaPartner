@@ -7,8 +7,9 @@ import com.google.mlkit.vision.pose.PoseDetectorOptionsBase
 import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
 import com.sharkaboi.yogapartner.common.extensions.getOrSetDefault
+import com.sharkaboi.yogapartner.ml.ConvertedModel
 import com.sharkaboi.yogapartner.ml.classification.IAsanaClassifier
-import com.sharkaboi.yogapartner.ml.classification.KNNAsanaClassifier
+import com.sharkaboi.yogapartner.ml.classification.TFLiteAsanaClassifier
 import com.sharkaboi.yogapartner.ml.models.TrainedPoseSample
 
 class DetectorOptions private constructor() {
@@ -19,6 +20,7 @@ class DetectorOptions private constructor() {
     val poseExitedConfidenceThreshold = 4f
 
     lateinit var sharedPrefs: SharedPreferences
+    lateinit var tfliteModel: ConvertedModel
 
     fun getOption(): PoseDetectorOptionsBase {
         val useAccurate = sharedPrefs.getBoolean("useAccurate", true)
@@ -58,8 +60,8 @@ class DetectorOptions private constructor() {
     }
 
     fun getClassifier(poseSamples: List<TrainedPoseSample>?): IAsanaClassifier {
-        return KNNAsanaClassifier(poseSamples)
-//        return TFLiteAsanaClassifier()
+//        return KNNAsanaClassifier(poseSamples)
+        return TFLiteAsanaClassifier(tfliteModel)
     }
 
     companion object {
@@ -76,6 +78,7 @@ class DetectorOptions private constructor() {
 
         fun init(context: Context) {
             instance.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
+            instance.tfliteModel = ConvertedModel.newInstance(context)
             initDefaultValuesIfNotPresent()
         }
 
