@@ -35,7 +35,7 @@ class TFLiteAsanaClassifier(private val model: ConvertedModel) : IAsanaClassifie
             AsanaClass.phalakasana,
             AsanaClass.ustrasana,
             AsanaClass.utkatasana,
-            AsanaClass.upavistha_konasana,
+            AsanaClass.utkata_konasana,
             AsanaClass.adho_mukha_svanasana
         )
         output.floatArray.forEachIndexed { index: Int, fl: Float ->
