@@ -3,7 +3,6 @@ package com.sharkaboi.yogapartner.ml.config
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase
-import com.google.mlkit.vision.pose.PoseLandmark
 import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
 import com.sharkaboi.yogapartner.common.extensions.getOrSetDefault
@@ -12,6 +11,7 @@ import com.sharkaboi.yogapartner.ml.classification.IAsanaClassifier
 import com.sharkaboi.yogapartner.ml.classification.KNNAsanaClassifier
 import com.sharkaboi.yogapartner.ml.classification.TFLiteAsanaClassifier
 import com.sharkaboi.yogapartner.ml.models.TrainedPoseSample
+import com.sharkaboi.yogapartner.ml.utils.PoseEmbeddingUtils
 
 class DetectorOptions(
     private val context: Context,
@@ -76,21 +76,7 @@ class DetectorOptions(
     }
 
     fun isImportantLandMark(landmarkType: Int): Boolean {
-        return landmarkType == PoseLandmark.LEFT_HIP
-                || landmarkType == PoseLandmark.RIGHT_HIP
-                || landmarkType == PoseLandmark.LEFT_SHOULDER
-                || landmarkType == PoseLandmark.RIGHT_SHOULDER
-                || landmarkType == PoseLandmark.LEFT_ELBOW
-                || landmarkType == PoseLandmark.RIGHT_ELBOW
-                || landmarkType == PoseLandmark.LEFT_WRIST
-                || landmarkType == PoseLandmark.RIGHT_WRIST
-                || landmarkType == PoseLandmark.LEFT_KNEE
-                || landmarkType == PoseLandmark.RIGHT_KNEE
-                || landmarkType == PoseLandmark.LEFT_ANKLE
-                || landmarkType == PoseLandmark.RIGHT_ANKLE
-                || landmarkType == PoseLandmark.NOSE
-                || landmarkType == PoseLandmark.RIGHT_FOOT_INDEX
-                || landmarkType == PoseLandmark.LEFT_FOOT_INDEX
+        return PoseEmbeddingUtils.isImportantLandMark(landmarkType)
     }
 
     companion object {

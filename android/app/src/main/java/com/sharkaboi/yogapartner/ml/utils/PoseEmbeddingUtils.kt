@@ -203,4 +203,19 @@ object PoseEmbeddingUtils {
         )
         return embedding
     }
+
+    fun isImportantLandMark(landmarkType: Int): Boolean {
+        return landmarkType == PoseLandmark.LEFT_HIP
+                || landmarkType == PoseLandmark.RIGHT_HIP
+                || landmarkType == PoseLandmark.LEFT_SHOULDER
+                || landmarkType == PoseLandmark.RIGHT_SHOULDER
+                || landmarkType == PoseLandmark.LEFT_ELBOW
+                || landmarkType == PoseLandmark.RIGHT_ELBOW
+                || landmarkType == PoseLandmark.LEFT_WRIST
+                || landmarkType == PoseLandmark.RIGHT_WRIST
+                || landmarkType == PoseLandmark.LEFT_KNEE
+                || landmarkType == PoseLandmark.RIGHT_KNEE
+                || landmarkType == PoseLandmark.LEFT_ANKLE
+                || landmarkType == PoseLandmark.RIGHT_ANKLE
+    }
 }
