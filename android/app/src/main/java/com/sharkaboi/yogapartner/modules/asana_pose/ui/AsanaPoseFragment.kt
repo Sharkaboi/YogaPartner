@@ -247,7 +247,7 @@ class AsanaPoseFragment : Fragment() {
         val result = resultSmoother.getMajorityPose()
         val string = buildString {
             if (detectorOptions.shouldShowConfidence()) {
-                append("${result.confidence}% - ")
+                append("${result.confidence.toInt()}% - ")
             }
             append(result.asanaClass.getFormattedString().capitalizeFirst())
         }
