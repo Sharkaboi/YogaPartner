@@ -28,7 +28,8 @@ class ClassificationResult {
     }
 
     fun incrementClassConfidence(className: String) {
-        val asanaClass = runCatching { AsanaClass.valueOf(className) }.getOrDefault(AsanaClass.UNKNOWN)
+        val asanaClass =
+            runCatching { AsanaClass.valueOf(className) }.getOrDefault(AsanaClass.UNKNOWN)
         classConfidences[asanaClass] = classConfidences[asanaClass]?.plus(1) ?: 1f
     }
 

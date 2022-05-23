@@ -17,10 +17,11 @@ import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseDetector
 import com.sharkaboi.yogapartner.R
 import com.sharkaboi.yogapartner.common.extensions.showToast
-import com.sharkaboi.yogapartner.ml.classification.AsanaClass
 import com.sharkaboi.yogapartner.ml.classification.IAsanaClassifier
+import com.sharkaboi.yogapartner.ml.classification.KNNAsanaClassifier
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
 import com.sharkaboi.yogapartner.ml.log.LatencyLogger
+import com.sharkaboi.yogapartner.ml.models.Classification
 import com.sharkaboi.yogapartner.ml.models.PoseWithAsanaClassification
 import com.sharkaboi.yogapartner.ml.models.TrainedPoseSample
 import com.sharkaboi.yogapartner.ml.models.TrainedPoseSample.Companion.getPoseSample
@@ -33,7 +34,8 @@ import java.util.concurrent.Executors
 
 class AsanaProcessor(
     private val context: Context,
-    private val latencyLogger: LatencyLogger
+    private val latencyLogger: LatencyLogger,
+    private val detectorOptions: DetectorOptions
 ) {
     private var poseSamples: List<TrainedPoseSample>? = null
 
@@ -46,7 +48,7 @@ class AsanaProcessor(
     private var classifier: IAsanaClassifier? = null
 
     private val detector: PoseDetector = PoseDetection.getClient(
-        DetectorOptions.getInstance().getOption()
+        detectorOptions.getOption()
     )
 
     @ExperimentalGetImage
@@ -63,7 +65,7 @@ class AsanaProcessor(
         }
 
         val task: Task<PoseWithAsanaClassification>
-        if (DetectorOptions.getInstance().isMLImageEnabled()) {
+        if (detectorOptions.isMLImageEnabled()) {
             val mlImage = MediaMlImageBuilder(image.image!!)
                 .setRotation(image.imageInfo.rotationDegrees)
                 .build()
@@ -127,11 +129,11 @@ class AsanaProcessor(
         }
         return processImageTask.continueWith(classificationExecutor) { task ->
             val pose = task.result
-            lazyLoadSamples(isLoading)
+            loadClassifier(isLoading)
             val classifierStart = SystemClock.elapsedRealtime()
-            val classificationResult = classifyAsanaFromPose(pose)
+            val classification = classifyAsanaFromPose(pose)
             latencyLogger.logClassifierTime(classifierStart)
-            PoseWithAsanaClassification(pose, classificationResult)
+            PoseWithAsanaClassification(pose, classification)
         }
     }
 
@@ -145,11 +147,11 @@ class AsanaProcessor(
         }
         return processImageTask.continueWith(classificationExecutor) { task ->
             val pose = task.result
-            lazyLoadSamples(isLoading)
+            loadClassifier(isLoading)
             val classifierStart = SystemClock.elapsedRealtime()
-            val classificationResult = classifyAsanaFromPose(pose)
+            val classification = classifyAsanaFromPose(pose)
             latencyLogger.logClassifierTime(classifierStart)
-            PoseWithAsanaClassification(pose, classificationResult)
+            PoseWithAsanaClassification(pose, classification)
         }
     }
 
@@ -160,27 +162,29 @@ class AsanaProcessor(
         detector.close()
     }
 
-    private fun lazyLoadSamples(isLoading: (Boolean) -> Unit) {
-        if (poseSamples == null) {
-            isLoading(true)
+    private fun loadClassifier(isLoading: (Boolean) -> Unit) {
+        isLoading(true)
+        classifier?.close()
+        var classifier = detectorOptions.getClassifier(poseSamples)
+        if (classifier is KNNAsanaClassifier && poseSamples == null) {
             val sampleLoadStart = SystemClock.elapsedRealtime()
             loadPoseSamplesFromDisk()
             latencyLogger.logSampleLoadTime(sampleLoadStart)
+            classifier = detectorOptions.getClassifier(poseSamples)
         }
-        classifier?.close()
-        classifier = DetectorOptions.getInstance().getClassifier(poseSamples)
+        this.classifier = classifier
         isLoading(false)
     }
 
     @WorkerThread
-    private fun classifyAsanaFromPose(pose: Pose): AsanaClass {
+    private fun classifyAsanaFromPose(pose: Pose): Classification {
         Preconditions.checkState(Looper.myLooper() != Looper.getMainLooper())
         val classification = classifier!!.classify(pose)
 
         val maxConfidenceClass = classification.getMaxConfidenceClass()
         val confidence = (classification.getClassConfidence(maxConfidenceClass)
                 / classifier!!.confidenceRange())
-        return maxConfidenceClass
+        return Classification(maxConfidenceClass, confidence)
     }
 
     private fun loadPoseSamplesFromDisk() {

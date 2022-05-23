@@ -18,12 +18,19 @@ import com.sharkaboi.yogapartner.common.extensions.await
 import com.sharkaboi.yogapartner.ml.classification.AsanaClass
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
 import com.sharkaboi.yogapartner.ml.models.TrainedPoseSample
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class TestActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var detectorOptions: DetectorOptions
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -155,7 +162,7 @@ class TestActivity : AppCompatActivity() {
     }
 
     private fun getClassification(landmarks: Pose): AsanaClass {
-        val classifier = DetectorOptions.getInstance().getClassifier(poseSamples)
+        val classifier = detectorOptions.getClassifier(poseSamples)
         Timber.d("getClassifications")
         return classifier.classify(landmarks).getMaxConfidenceClass()
     }

@@ -69,7 +69,7 @@ public class KNNAsanaClassifier implements IAsanaClassifier {
      */
     @Override
     public float confidenceRange() {
-        return min(maxDistanceTopK, meanDistanceTopK);
+        return min(maxDistanceTopK, meanDistanceTopK) * 0.01f;
     }
 
     @Override

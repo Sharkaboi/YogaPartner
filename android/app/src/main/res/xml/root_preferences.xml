@@ -2,8 +2,8 @@
 
     <com.sharkaboi.yogapartner.modules.settings.ToolBarPreference
         app:icon="@drawable/ic_back"
-        app:title="Settings"
-        app:key="toolbar" />
+        app:key="toolbar"
+        app:title="Settings" />
 
     <SwitchPreferenceCompat
         app:icon="@drawable/ic_pose"
@@ -29,4 +29,14 @@
         app:icon="@drawable/ic_speed"
         app:key="preferGpu"
         app:title="Use GPU to run detector" />
+
+    <SwitchPreferenceCompat
+        app:icon="@drawable/ic_confidence"
+        app:key="shouldShowConfidence"
+        app:title="Show confidence" />
+
+    <SwitchPreferenceCompat
+        app:icon="@drawable/ic_knn"
+        app:key="useKnn"
+        app:title="Use KNN classifier" />
 </PreferenceScreen>

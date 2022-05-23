@@ -1,19 +1,31 @@
 package com.sharkaboi.yogapartner.modules.asana_pose.util
 
 import com.sharkaboi.yogapartner.ml.classification.AsanaClass
+import com.sharkaboi.yogapartner.ml.config.DetectorOptions
+import com.sharkaboi.yogapartner.ml.models.Classification
+import com.sharkaboi.yogapartner.ml.models.PoseWithAsanaClassification
 
 class ResultSmoother {
-    private val lastCachedResults = mutableListOf<AsanaClass>()
+    private val lastCachedResults = mutableListOf<Classification>()
 
-    fun getMajorityPose(): AsanaClass {
-        return lastCachedResults.groupingBy { it }.eachCount().maxWithOrNull { e1, e2 ->
-            (e1.value - e2.value)
-        }?.key ?: AsanaClass.UNKNOWN
+    fun getMajorityPose(): Classification {
+        val asanaGrouped = lastCachedResults.groupingBy { it.asanaClass }.eachCount()
+        val maxFrequencyAsana =
+            asanaGrouped.maxWithOrNull { e1, e2 -> e1.value.compareTo(e2.value) }?.key
+                ?: return Classification(AsanaClass.UNKNOWN, 100f)
+
+        return lastCachedResults
+            .filter {
+                it.asanaClass == maxFrequencyAsana
+                        && it.confidence > DetectorOptions.LANDMARK_CONF_THRESHOLD
+            }
+            .maxByOrNull { it.confidence }
+            ?: return Classification(AsanaClass.UNKNOWN, 100f)
     }
 
-    fun setInferredPose(asanaClass: AsanaClass) {
+    fun setInferredPose(poseWithAsanaClassification: PoseWithAsanaClassification) {
         checkFrameCountAndFlush()
-        lastCachedResults.add(asanaClass)
+        lastCachedResults.add(poseWithAsanaClassification.classification)
     }
 
     fun clearCache() {

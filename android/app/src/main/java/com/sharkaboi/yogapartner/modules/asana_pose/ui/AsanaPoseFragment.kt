@@ -14,7 +14,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.mlkit.vision.pose.Pose
-import com.google.mlkit.vision.pose.PoseLandmark
+import com.sharkaboi.yogapartner.R
 import com.sharkaboi.yogapartner.common.extensions.capitalizeFirst
 import com.sharkaboi.yogapartner.common.extensions.observe
 import com.sharkaboi.yogapartner.common.extensions.showToast
@@ -30,10 +30,15 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @ExperimentalGetImage
 @AndroidEntryPoint
 class AsanaPoseFragment : Fragment() {
+
+    @Inject
+    lateinit var detectorOptions: DetectorOptions
+
     private var _binding: FragmentAsanaPoseBinding? = null
     private val binding get() = _binding!!
     private val asanaPoseViewModel by viewModels<AsanaPoseViewModel>()
@@ -171,7 +176,8 @@ class AsanaPoseFragment : Fragment() {
         try {
             asanaProcessor = AsanaProcessor(
                 requireContext(),
-                LatencyLogger()
+                LatencyLogger(),
+                detectorOptions
             )
         } catch (e: Exception) {
             Timber.d("Can not create image processor", e)
@@ -232,10 +238,20 @@ class AsanaPoseFragment : Fragment() {
     }
 
     private fun onInference(poseWithAsanaClassification: PoseWithAsanaClassification) {
-        resultSmoother.setInferredPose(poseWithAsanaClassification.classificationResult)
-        binding.tvInference.text =
-            resultSmoother.getMajorityPose().getFormattedString().capitalizeFirst()
+        resultSmoother.setInferredPose(poseWithAsanaClassification)
+        setInferenceUi()
         checkDistanceFromCamera(poseWithAsanaClassification.pose)
+    }
+
+    private fun setInferenceUi() {
+        val result = resultSmoother.getMajorityPose()
+        val string = buildString {
+            if (detectorOptions.shouldShowConfidence()) {
+                append("${result.confidence}% - ")
+            }
+            append(result.asanaClass.getFormattedString().capitalizeFirst())
+        }
+        binding.tvInference.text = string
     }
 
     private fun checkDistanceFromCamera(pose: Pose) {
@@ -244,24 +260,13 @@ class AsanaPoseFragment : Fragment() {
         val isNotConfident = typeToConfidences.any {
             isImportantTypeLandmark(it.first) && it.second < DetectorOptions.LANDMARK_CONF_THRESHOLD
         } || typeToConfidences.isEmpty()
+        if (isNotConfident) {
+            binding.tvInference.text = getString(R.string.unknown)
+        }
         binding.tvNotConfidentMessage.alpha = if (isNotConfident) 1f else 0f
     }
 
     private fun isImportantTypeLandmark(landmarkType: Int): Boolean {
-        return landmarkType == PoseLandmark.LEFT_HIP
-                || landmarkType == PoseLandmark.RIGHT_HIP
-                || landmarkType == PoseLandmark.LEFT_SHOULDER
-                || landmarkType == PoseLandmark.RIGHT_SHOULDER
-                || landmarkType == PoseLandmark.LEFT_ELBOW
-                || landmarkType == PoseLandmark.RIGHT_ELBOW
-                || landmarkType == PoseLandmark.LEFT_WRIST
-                || landmarkType == PoseLandmark.RIGHT_WRIST
-                || landmarkType == PoseLandmark.LEFT_KNEE
-                || landmarkType == PoseLandmark.RIGHT_KNEE
-                || landmarkType == PoseLandmark.LEFT_ANKLE
-                || landmarkType == PoseLandmark.RIGHT_ANKLE
-                || landmarkType == PoseLandmark.NOSE
-                || landmarkType == PoseLandmark.RIGHT_FOOT_INDEX
-                || landmarkType == PoseLandmark.LEFT_FOOT_INDEX
+        return detectorOptions.isImportantLandMark(landmarkType)
     }
 }

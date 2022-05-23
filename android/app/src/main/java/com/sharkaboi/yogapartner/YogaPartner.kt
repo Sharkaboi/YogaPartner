@@ -16,6 +16,5 @@ class YogaPartner : MultiDexApplication() {
                 super.log(priority, "shark_log_$tag", message, t)
             }
         })
-        DetectorOptions.init(this)
     }
 }

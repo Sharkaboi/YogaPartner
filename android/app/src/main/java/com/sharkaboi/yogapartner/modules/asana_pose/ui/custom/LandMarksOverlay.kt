@@ -12,11 +12,18 @@ import com.google.common.primitives.Ints
 import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseLandmark
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlin.math.max
 import kotlin.math.min
 
+@AndroidEntryPoint
 @Suppress("UnstableApiUsage")
 class LandMarksOverlay(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
+
+    @Inject
+    lateinit var detectorOptions: DetectorOptions
+
     private val lock = Any()
     private var pose: Pose? = null
     private var isImageFlipped: Boolean = false
@@ -53,9 +60,9 @@ class LandMarksOverlay(context: Context?, attrs: AttributeSet?) : View(context, 
         strokeWidth = STROKE_WIDTH
         color = Color.YELLOW
     }
-    private val visualizeZ get() = DetectorOptions.getInstance().getVisualizeZ()
+    private val visualizeZ get() = detectorOptions.getVisualizeZ()
     private val rescaleZForVisualization
-        get() = DetectorOptions.getInstance().rescaleZForVisualization()
+        get() = detectorOptions.rescaleZForVisualization()
 
     init {
         addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
@@ -105,7 +112,7 @@ class LandMarksOverlay(context: Context?, attrs: AttributeSet?) : View(context, 
             return
         }
 
-        if (!DetectorOptions.getInstance().shouldShowOutLine()) {
+        if (!detectorOptions.shouldShowOutLine()) {
             return
         }
 
