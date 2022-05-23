@@ -17,7 +17,7 @@ class ResultSmoother {
         return lastCachedResults
             .filter {
                 it.asanaClass == maxFrequencyAsana
-                        && it.confidence > DetectorOptions.LANDMARK_CONF_THRESHOLD
+                        && it.confidence > DetectorOptions.LANDMARK_CONF_THRESHOLD / 0.01f
             }
             .maxByOrNull { it.confidence }
             ?: return Classification(AsanaClass.UNKNOWN, 100f)
