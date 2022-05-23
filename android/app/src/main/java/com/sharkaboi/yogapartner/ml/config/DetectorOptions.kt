@@ -67,12 +67,12 @@ class DetectorOptions(
     }
 
     fun getClassifier(poseSamples: List<TrainedPoseSample>?): IAsanaClassifier {
-        val useKnn = sharedPrefs.getBoolean("useKnn", true)
+        val useKnn = sharedPrefs.getBoolean("useKnn", false)
         return if (useKnn) KNNAsanaClassifier(poseSamples) else TFLiteAsanaClassifier(tfLiteModel)
     }
 
     fun shouldShowConfidence(): Boolean {
-        return sharedPrefs.getBoolean("shouldShowConfidence", true)
+        return sharedPrefs.getBoolean("shouldShowConfidence", false)
     }
 
     fun isImportantLandMark(landmarkType: Int): Boolean {
