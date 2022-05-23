@@ -10,7 +10,7 @@
     minSdkVersion value. In code, will check SDK version, before calling CameraX
     APIs.
     -->
-    <uses-sdk tools:overrideLibrary="           androidx.camera.camera2, androidx.camera.core,           androidx.camera.view, androidx.camera.lifecycle" />
+    <uses-sdk tools:overrideLibrary="androidx.camera.camera2, androidx.camera.core, androidx.camera.view, androidx.camera.lifecycle" />
 
     <uses-feature android:name="android.hardware.camera" />
 
@@ -32,14 +32,8 @@
         android:theme="@style/Theme.App.Starting">
         <activity
             android:name=".test.TestActivity"
-            android:exported="true"
-            android:label="Test">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:exported="false"
+            android:label="Test" />
 
         <meta-data
             android:name="com.google.android.gms.version"
