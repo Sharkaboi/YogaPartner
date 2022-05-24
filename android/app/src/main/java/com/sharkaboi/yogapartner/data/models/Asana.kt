@@ -1,10 +1,12 @@
 package com.sharkaboi.yogapartner.data.models
 
 import android.os.Parcelable
+import androidx.annotation.Keep
 import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
+@Keep
 data class Asana(
     val id: String,
     val name: String,
@@ -26,7 +28,7 @@ data class Asana(
     }
 
     companion object {
-        fun getFromDbValue(document: DocumentSnapshot): Asana {
+        private fun getFromDbValue(document: DocumentSnapshot): Asana {
             return Asana(
                 id = document.id,
                 name = document["asana_name"].toString(),

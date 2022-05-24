@@ -1,5 +1,8 @@
 package com.sharkaboi.yogapartner.data.models
 
+import androidx.annotation.Keep
+
+@Keep
 enum class AsanaDifficulty {
     UNKNOWN,
     EASY,
