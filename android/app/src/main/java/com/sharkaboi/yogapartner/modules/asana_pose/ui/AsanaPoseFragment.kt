@@ -14,7 +14,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.mlkit.vision.pose.Pose
 import com.sharkaboi.yogapartner.R
 import com.sharkaboi.yogapartner.common.extensions.capitalizeFirst
 import com.sharkaboi.yogapartner.common.extensions.observe
@@ -252,16 +251,27 @@ class AsanaPoseFragment : Fragment() {
 
     private fun onInference(poseWithAsanaClassification: PoseWithAsanaClassification) {
         resultSmoother.setInferredPose(poseWithAsanaClassification)
-        setInferenceUi()
-        checkDistanceFromCamera(poseWithAsanaClassification.pose)
-        speakAsana(poseWithAsanaClassification)
+        setInferenceUi(poseWithAsanaClassification)
     }
 
-    private fun speakAsana(poseWithAsanaClassification: PoseWithAsanaClassification) {
-        ttsSpeechManager.speakAsana(poseWithAsanaClassification.classification.asanaClass)
-    }
+    private fun setInferenceUi(poseWithAsanaClassification: PoseWithAsanaClassification) {
+        val typeToConfidences = poseWithAsanaClassification.pose.allPoseLandmarks.map {
+            Pair(it.landmarkType, it.inFrameLikelihood)
+        }
 
-    private fun setInferenceUi() {
+        val isNotConfident = typeToConfidences.isEmpty() || typeToConfidences.any {
+            detectorOptions.isImportantLandMark(it.first)
+                    && it.second < DetectorOptions.LANDMARK_CONF_THRESHOLD
+        }
+
+        if (isNotConfident) {
+            binding.tvInference.text = getString(R.string.unknown)
+            binding.tvNotConfidentMessage.alpha = 1f
+            return
+        }
+
+        binding.tvNotConfidentMessage.alpha = 0f
+
         val result = resultSmoother.getMajorityPose()
         val string = buildString {
             if (detectorOptions.shouldShowConfidence()) {
@@ -270,21 +280,7 @@ class AsanaPoseFragment : Fragment() {
             append(result.asanaClass.getFormattedString().capitalizeFirst())
         }
         binding.tvInference.text = string
-    }
 
-    private fun checkDistanceFromCamera(pose: Pose) {
-        val typeToConfidences =
-            pose.allPoseLandmarks.map { Pair(it.landmarkType, it.inFrameLikelihood) }
-        val isNotConfident = typeToConfidences.any {
-            isImportantTypeLandmark(it.first) && it.second < DetectorOptions.LANDMARK_CONF_THRESHOLD
-        } || typeToConfidences.isEmpty()
-        if (isNotConfident) {
-            binding.tvInference.text = getString(R.string.unknown)
-        }
-        binding.tvNotConfidentMessage.alpha = if (isNotConfident) 1f else 0f
-    }
-
-    private fun isImportantTypeLandmark(landmarkType: Int): Boolean {
-        return detectorOptions.isImportantLandMark(landmarkType)
+        ttsSpeechManager.speakAsana(result.asanaClass)
     }
 }
