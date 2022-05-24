@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.ErrorCodes
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseAuth
@@ -57,7 +58,8 @@ class AuthFragment : Fragment() {
 
     private fun signIn() {
         val providers = arrayListOf(
-            AuthUI.IdpConfig.GoogleBuilder().build()
+            AuthUI.IdpConfig.GoogleBuilder()
+                .build()
         )
 
         val signInIntent = AuthUI.getInstance()
@@ -90,6 +92,11 @@ class AuthFragment : Fragment() {
         val error = response.error
         if (result.resultCode == Activity.RESULT_OK) {
             loginSuccess()
+            return
+        }
+
+        if (result.resultCode == ErrorCodes.NO_NETWORK) {
+            showToast("No internet")
             return
         }
 

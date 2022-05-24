@@ -23,7 +23,8 @@ class StartFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        checkLogin()
+        navigateToMain()
+//        checkLogin()
     }
 
     private fun checkLogin() {
