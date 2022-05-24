@@ -5,10 +5,15 @@ import androidx.multidex.MultiDexApplication
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltAndroidApp
 @ExperimentalGetImage
 class YogaPartner : MultiDexApplication() {
+
+    @Inject
+    lateinit var detectorOptions: DetectorOptions
+
     override fun onCreate() {
         super.onCreate()
         Timber.plant(object : Timber.DebugTree() {
@@ -16,5 +21,6 @@ class YogaPartner : MultiDexApplication() {
                 super.log(priority, "shark_log_$tag", message, t)
             }
         })
+        detectorOptions.setDefaults()
     }
 }

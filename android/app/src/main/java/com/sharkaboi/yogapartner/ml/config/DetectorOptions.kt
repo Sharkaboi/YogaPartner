@@ -17,7 +17,7 @@ class DetectorOptions(
     private val context: Context,
     private val sharedPrefs: SharedPreferences
 ) {
-    init {
+    fun setDefaults() {
         sharedPrefs.getOrSetDefault("isMlImage", true)
         sharedPrefs.getOrSetDefault("showPose", false)
         sharedPrefs.getOrSetDefault("showZ", true)
