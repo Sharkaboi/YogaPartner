@@ -25,6 +25,7 @@ import com.sharkaboi.yogapartner.ml.models.PoseWithAsanaClassification
 import com.sharkaboi.yogapartner.ml.processor.AsanaProcessor
 import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.LandMarksOverlay
 import com.sharkaboi.yogapartner.modules.asana_pose.util.ResultSmoother
+import com.sharkaboi.yogapartner.modules.asana_pose.util.TTSSpeechManager
 import com.sharkaboi.yogapartner.modules.asana_pose.vm.AsanaPoseViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +46,7 @@ class AsanaPoseFragment : Fragment() {
     private val navController get() = findNavController()
     private val mainExecutor get() = ContextCompat.getMainExecutor(requireContext())
     private val resultSmoother = ResultSmoother()
+    private val ttsSpeechManager = TTSSpeechManager(requireContext())
 
     private val previewView: PreviewView get() = binding.previewView
     private val landMarksOverlay: LandMarksOverlay get() = binding.landmarksOverlay
@@ -70,12 +72,15 @@ class AsanaPoseFragment : Fragment() {
     }
 
     override fun onPause() {
+        ttsSpeechManager.stop()
         super.onPause()
         asanaProcessor?.run { this.stop() }
     }
 
     override fun onDestroyView() {
         asanaProcessor?.run { this.stop() }
+        ttsSpeechManager.stop()
+        ttsSpeechManager.shutdown()
         _binding = null
         super.onDestroyView()
     }
@@ -241,6 +246,11 @@ class AsanaPoseFragment : Fragment() {
         resultSmoother.setInferredPose(poseWithAsanaClassification)
         setInferenceUi()
         checkDistanceFromCamera(poseWithAsanaClassification.pose)
+        speakAsana(poseWithAsanaClassification)
+    }
+
+    private fun speakAsana(poseWithAsanaClassification: PoseWithAsanaClassification) {
+        ttsSpeechManager.speakAsana(poseWithAsanaClassification.classification.asanaClass)
     }
 
     private fun setInferenceUi() {
