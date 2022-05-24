@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.mlkit.vision.pose.Pose
 import com.sharkaboi.yogapartner.R
 import com.sharkaboi.yogapartner.common.extensions.capitalizeFirst
@@ -189,6 +190,7 @@ class AsanaPoseFragment : Fragment() {
             showToast(
                 "Can not create image processor: " + e.localizedMessage,
             )
+            FirebaseCrashlytics.getInstance().recordException(e)
             return
         }
 
@@ -233,6 +235,7 @@ class AsanaPoseFragment : Fragment() {
         } catch (e: Exception) {
             Timber.d("Failed to process image. Error: " + e.localizedMessage)
             showToast(e.localizedMessage)
+            FirebaseCrashlytics.getInstance().recordException(e)
         }
     }
 

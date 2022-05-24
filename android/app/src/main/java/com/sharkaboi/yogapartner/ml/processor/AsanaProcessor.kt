@@ -11,6 +11,7 @@ import com.google.android.gms.tasks.TaskExecutors
 import com.google.android.odml.image.MediaMlImageBuilder
 import com.google.android.odml.image.MlImage
 import com.google.common.base.Preconditions
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseDetection
@@ -116,6 +117,7 @@ class AsanaProcessor(
             landMarksOverlay.context.showToast("$error \nCause: ${e.cause}")
             Timber.d("Pose detection failed! $error")
             e.printStackTrace()
+            FirebaseCrashlytics.getInstance().recordException(e)
         }
     }
 
