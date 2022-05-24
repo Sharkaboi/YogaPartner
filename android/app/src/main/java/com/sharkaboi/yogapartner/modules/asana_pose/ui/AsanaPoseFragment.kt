@@ -47,7 +47,7 @@ class AsanaPoseFragment : Fragment() {
     private val navController get() = findNavController()
     private val mainExecutor get() = ContextCompat.getMainExecutor(requireContext())
     private val resultSmoother = ResultSmoother()
-    private val ttsSpeechManager = TTSSpeechManager(requireContext())
+    private lateinit var ttsSpeechManager: TTSSpeechManager
 
     private val previewView: PreviewView get() = binding.previewView
     private val landMarksOverlay: LandMarksOverlay get() = binding.landmarksOverlay
@@ -88,9 +88,14 @@ class AsanaPoseFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initTTS()
         initCamera()
         initListeners()
         initObservers()
+    }
+
+    private fun initTTS() {
+        ttsSpeechManager = TTSSpeechManager(requireContext())
     }
 
     private fun initCamera() {
