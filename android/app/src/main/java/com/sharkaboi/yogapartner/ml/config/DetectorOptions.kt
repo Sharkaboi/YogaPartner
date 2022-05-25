@@ -6,8 +6,6 @@ import com.google.mlkit.vision.pose.PoseDetectorOptionsBase
 import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
 import com.sharkaboi.yogapartner.common.extensions.getOrSetDefault
-import com.sharkaboi.yogapartner.ml.ModelV1
-import com.sharkaboi.yogapartner.ml.ModelV2
 import com.sharkaboi.yogapartner.ml.classification.IAsanaClassifier
 import com.sharkaboi.yogapartner.ml.classification.TFLiteAsanaClassifier
 import com.sharkaboi.yogapartner.ml.utils.PoseEmbeddingUtils
@@ -20,10 +18,6 @@ class DetectorOptions(
         sharedPrefs.getOrSetDefault("showPose", false)
         sharedPrefs.getOrSetDefault("shouldShowConfidence", false)
     }
-
-    private val tfLiteModel
-//        get() = ModelV1.newInstance(context)
-        get() = ModelV2.newInstance(context)
 
     fun getOption(): PoseDetectorOptionsBase {
         val builder: AccuratePoseDetectorOptions.Builder =
@@ -38,7 +32,7 @@ class DetectorOptions(
     }
 
     fun getClassifier(): IAsanaClassifier {
-        return TFLiteAsanaClassifier(tfLiteModel)
+        return TFLiteAsanaClassifier(context)
     }
 
     fun shouldShowConfidence(): Boolean {
