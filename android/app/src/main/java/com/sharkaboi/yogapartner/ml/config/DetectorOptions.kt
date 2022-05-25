@@ -18,26 +18,17 @@ class DetectorOptions(
     fun setDefaults() {
         sharedPrefs.getOrSetDefault("showPose", false)
         sharedPrefs.getOrSetDefault("showZ", true)
-        sharedPrefs.getOrSetDefault("useAccurate", true)
         sharedPrefs.getOrSetDefault("shouldShowConfidence", false)
     }
 
     private val tfLiteModel get() = ConvertedModel.newInstance(context)
 
     fun getOption(): PoseDetectorOptionsBase {
-        val useAccurate = sharedPrefs.getBoolean("useAccurate", true)
-        if (useAccurate) {
-            val builder: AccuratePoseDetectorOptions.Builder =
-                AccuratePoseDetectorOptions.Builder()
-                    .setDetectorMode(PoseDetectorOptions.STREAM_MODE)
-            builder.setPreferredHardwareConfigs(PoseDetectorOptions.CPU_GPU)
-            return builder.build()
-        } else {
-            val builder =
-                PoseDetectorOptions.Builder().setDetectorMode(PoseDetectorOptions.STREAM_MODE)
-            builder.setPreferredHardwareConfigs(PoseDetectorOptions.CPU_GPU)
-            return builder.build()
-        }
+        val builder: AccuratePoseDetectorOptions.Builder =
+            AccuratePoseDetectorOptions.Builder()
+                .setDetectorMode(PoseDetectorOptions.STREAM_MODE)
+        builder.setPreferredHardwareConfigs(PoseDetectorOptions.CPU_GPU)
+        return builder.build()
     }
 
     fun getVisualizeZ(): Boolean {
