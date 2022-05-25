@@ -5,7 +5,6 @@ import com.sharkaboi.yogapartner.data.models.Asana
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.asDeferred
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 
 class FirestoreRepository(
     private val db: FirebaseFirestore
@@ -17,7 +16,7 @@ class FirestoreRepository(
             .asDeferred()
         val result = deferred.await()
 //        Timber.d(result.documents.toString())
-        Asana.getFromDbList(result.documents)
+        Asana.getFromDbList(result.documents).sortedBy { it.name }
     }
 
     companion object {
