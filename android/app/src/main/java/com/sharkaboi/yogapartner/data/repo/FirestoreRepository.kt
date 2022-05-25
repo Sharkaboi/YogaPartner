@@ -15,7 +15,11 @@ class FirestoreRepository(
             .get()
             .asDeferred()
         val result = deferred.await()
-        Asana.getFromDbList(result.documents).sortedBy { it.name }
+        val docs = Asana.getFromDbList(result.documents)
+        val (imp, notImp) = docs.partition { it.isImp == true }
+        val sortedByAlphabetsImp = imp.sortedBy { it.name }
+        val sortedByAlphabetsNotImp = notImp.sortedBy { it.name }
+        sortedByAlphabetsImp + sortedByAlphabetsNotImp
     }
 
     companion object {
