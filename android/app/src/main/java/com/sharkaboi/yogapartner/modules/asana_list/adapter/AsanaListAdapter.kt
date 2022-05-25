@@ -2,6 +2,7 @@ package com.sharkaboi.yogapartner.modules.asana_list.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -34,7 +35,8 @@ class AsanaListAdapter(
     }
 
     override fun onBindViewHolder(holder: AsanaListViewHolder, position: Int) {
-        holder.bind(listDiffer.currentList[position])
+        val currentList = listDiffer.currentList
+        holder.bind(currentList[position], position == currentList.size - 1)
     }
 
     override fun getItemCount(): Int {
@@ -49,8 +51,11 @@ class AsanaListAdapter(
         private val binding: ItemAsanaBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: Asana) {
-            binding.root.setOnClickListener {
+        fun bind(item: Asana, isLastItem: Boolean) {
+            binding.vEmpty.updateLayoutParams {
+                height = if (isLastItem) 250 else 0
+            }
+            binding.cvAsana.setOnClickListener {
                 onClick(item)
             }
             binding.btnSeeDetails.setOnClickListener {
