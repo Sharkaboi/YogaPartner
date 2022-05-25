@@ -19,7 +19,6 @@ import com.sharkaboi.yogapartner.common.extensions.observe
 import com.sharkaboi.yogapartner.common.extensions.showToast
 import com.sharkaboi.yogapartner.databinding.FragmentAsanaPoseBinding
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
-import com.sharkaboi.yogapartner.ml.log.LatencyLogger
 import com.sharkaboi.yogapartner.ml.models.PoseWithAsanaClassification
 import com.sharkaboi.yogapartner.ml.processor.AsanaProcessor
 import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.LandMarksOverlay
@@ -183,11 +182,7 @@ class AsanaPoseFragment : Fragment() {
         resultSmoother.clearCache()
 
         try {
-            asanaProcessor = AsanaProcessor(
-                requireContext(),
-                LatencyLogger(),
-                detectorOptions
-            )
+            asanaProcessor = AsanaProcessor(detectorOptions)
         } catch (e: Exception) {
             Timber.d("Can not create image processor", e)
             showToast(

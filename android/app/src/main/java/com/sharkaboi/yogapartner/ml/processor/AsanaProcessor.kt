@@ -1,6 +1,5 @@
 package com.sharkaboi.yogapartner.ml.processor
 
-import android.content.Context
 import android.os.Looper
 import android.os.SystemClock
 import androidx.annotation.WorkerThread
@@ -28,10 +27,10 @@ import timber.log.Timber
 import java.util.concurrent.Executors
 
 class AsanaProcessor(
-    private val context: Context,
-    private val latencyLogger: LatencyLogger,
     private val detectorOptions: DetectorOptions
 ) {
+    private val latencyLogger = LatencyLogger()
+
     // Whether this processor is already shut down
     private var isShutdown = false
 
@@ -40,9 +39,7 @@ class AsanaProcessor(
     private val classificationExecutor = Executors.newSingleThreadExecutor()
     private var classifier: IAsanaClassifier? = null
 
-    private val detector: PoseDetector = PoseDetection.getClient(
-        detectorOptions.getOption()
-    )
+    private val detector: PoseDetector = PoseDetection.getClient(detectorOptions.getOption())
 
     @ExperimentalGetImage
     fun processImageProxy(
