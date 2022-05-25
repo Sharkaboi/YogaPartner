@@ -21,11 +21,6 @@
         app:title="Use accurate detector" />
 
     <SwitchPreferenceCompat
-        app:icon="@drawable/ic_speed"
-        app:key="preferGpu"
-        app:title="Use GPU to run detector" />
-
-    <SwitchPreferenceCompat
         app:icon="@drawable/ic_confidence"
         app:key="shouldShowConfidence"
         app:title="Show confidence" />

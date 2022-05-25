@@ -18,7 +18,6 @@ class DetectorOptions(
     fun setDefaults() {
         sharedPrefs.getOrSetDefault("showPose", false)
         sharedPrefs.getOrSetDefault("showZ", true)
-        sharedPrefs.getOrSetDefault("preferGpu", true)
         sharedPrefs.getOrSetDefault("useAccurate", true)
         sharedPrefs.getOrSetDefault("shouldShowConfidence", false)
     }
@@ -27,21 +26,16 @@ class DetectorOptions(
 
     fun getOption(): PoseDetectorOptionsBase {
         val useAccurate = sharedPrefs.getBoolean("useAccurate", true)
-        val preferGpu = sharedPrefs.getBoolean("preferGpu", true)
         if (useAccurate) {
             val builder: AccuratePoseDetectorOptions.Builder =
                 AccuratePoseDetectorOptions.Builder()
                     .setDetectorMode(PoseDetectorOptions.STREAM_MODE)
-            if (preferGpu) {
-                builder.setPreferredHardwareConfigs(PoseDetectorOptions.CPU_GPU)
-            }
+            builder.setPreferredHardwareConfigs(PoseDetectorOptions.CPU_GPU)
             return builder.build()
         } else {
             val builder =
                 PoseDetectorOptions.Builder().setDetectorMode(PoseDetectorOptions.STREAM_MODE)
-            if (preferGpu) {
-                builder.setPreferredHardwareConfigs(PoseDetectorOptions.CPU_GPU)
-            }
+            builder.setPreferredHardwareConfigs(PoseDetectorOptions.CPU_GPU)
             return builder.build()
         }
     }
