@@ -24,6 +24,7 @@
             android:id="@+id/ivThumbnail"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:contentDescription="@string/thumbnail"
             android:scaleType="centerCrop"
             app:layout_constraintBottom_toTopOf="@id/view"
             app:layout_constraintDimensionRatio="1:1"
@@ -60,6 +61,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ivThumbnail"
+            tools:ignore="UnusedAttribute"
             tools:text="Savasana" />
 
         <TextView
@@ -77,6 +79,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvName"
+            tools:ignore="UnusedAttribute"
             tools:text="Difficulty : easy" />
 
         <TextView
@@ -94,6 +97,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/view"
             app:layout_constraintVertical_bias="1"
+            tools:ignore="UnusedAttribute"
             tools:text="@tools:sample/lorem" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

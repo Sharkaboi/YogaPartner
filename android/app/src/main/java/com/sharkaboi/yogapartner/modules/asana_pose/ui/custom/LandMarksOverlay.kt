@@ -120,8 +120,8 @@ class LandMarksOverlay(context: Context?, attrs: AttributeSet?) : View(context, 
         }
 
         val nose = pose.getPoseLandmark(PoseLandmark.NOSE)
-        val lefyEyeInner = pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER)
-        val lefyEye = pose.getPoseLandmark(PoseLandmark.LEFT_EYE)
+        val leftEyeInner = pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER)
+        val leftEye = pose.getPoseLandmark(PoseLandmark.LEFT_EYE)
         val leftEyeOuter = pose.getPoseLandmark(PoseLandmark.LEFT_EYE_OUTER)
         val rightEyeInner = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_INNER)
         val rightEye = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE)
@@ -156,9 +156,9 @@ class LandMarksOverlay(context: Context?, attrs: AttributeSet?) : View(context, 
         val rightFootIndex = pose.getPoseLandmark(PoseLandmark.RIGHT_FOOT_INDEX)
 
         // Face
-        drawLine(canvas, nose, lefyEyeInner, whitePaint)
-        drawLine(canvas, lefyEyeInner, lefyEye, whitePaint)
-        drawLine(canvas, lefyEye, leftEyeOuter, whitePaint)
+        drawLine(canvas, nose, leftEyeInner, whitePaint)
+        drawLine(canvas, leftEyeInner, leftEye, whitePaint)
+        drawLine(canvas, leftEye, leftEyeOuter, whitePaint)
         drawLine(canvas, leftEyeOuter, leftEar, whitePaint)
         drawLine(canvas, nose, rightEyeInner, whitePaint)
         drawLine(canvas, rightEyeInner, rightEye, whitePaint)

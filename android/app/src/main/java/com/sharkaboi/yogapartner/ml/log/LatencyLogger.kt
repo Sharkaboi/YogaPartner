@@ -3,6 +3,7 @@ package com.sharkaboi.yogapartner.ml.log
 import android.os.SystemClock
 import timber.log.Timber
 
+@Suppress("ReplaceJavaStaticMethodWithKotlinAnalog")
 class LatencyLogger {
     // Used to calculate latency, running in the same thread, no sync needed.
     private var numRuns = 0

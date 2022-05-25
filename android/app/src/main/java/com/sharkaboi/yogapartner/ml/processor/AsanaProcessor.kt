@@ -11,7 +11,6 @@ import com.google.android.odml.image.MediaMlImageBuilder
 import com.google.android.odml.image.MlImage
 import com.google.common.base.Preconditions
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseDetector
@@ -92,24 +91,6 @@ class AsanaProcessor(
             Timber.d("Pose detection failed! $error")
             e.printStackTrace()
             FirebaseCrashlytics.getInstance().recordException(e)
-        }
-    }
-
-    private fun detectAndClassifyInInputImage(
-        image: InputImage,
-        isLoading: (Boolean) -> Unit
-    ): Task<PoseWithAsanaClassification> {
-        val detectorStart = SystemClock.elapsedRealtime()
-        val processImageTask = detector.process(image).addOnCompleteListener {
-            latencyLogger.logDetectionTime(detectorStart)
-        }
-        return processImageTask.continueWith(classificationExecutor) { task ->
-            val pose = task.result
-            loadClassifier(isLoading)
-            val classifierStart = SystemClock.elapsedRealtime()
-            val classification = classifyAsanaFromPose(pose)
-            latencyLogger.logClassifierTime(classifierStart)
-            PoseWithAsanaClassification(pose, classification)
         }
     }
 

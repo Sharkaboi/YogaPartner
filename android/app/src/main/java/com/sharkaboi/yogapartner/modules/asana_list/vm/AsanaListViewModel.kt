@@ -25,7 +25,6 @@ constructor(
     val errors: LiveData<String> = _errors
 
     private val _asanaList = MutableLiveData<List<Asana>>(emptyList())
-    val asanaList: LiveData<List<Asana>> = _asanaList
 
     private val _currentList = MutableLiveData<List<Asana>>()
     val currentList: LiveData<List<Asana>> = _currentList

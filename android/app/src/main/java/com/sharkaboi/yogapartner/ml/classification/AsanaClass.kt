@@ -1,6 +1,6 @@
 package com.sharkaboi.yogapartner.ml.classification
 
-@Suppress("EnumEntryName")
+@Suppress("EnumEntryName", "SpellCheckingInspection")
 enum class AsanaClass {
     UNKNOWN,
     adho_mukha_svanasana,

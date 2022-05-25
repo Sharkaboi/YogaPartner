@@ -17,6 +17,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_margin="16dp"
+            android:contentDescription="@string/thumbnail"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -37,6 +38,7 @@
             app:layout_constraintEnd_toStartOf="@+id/btnSeeDetails"
             app:layout_constraintStart_toEndOf="@id/ivThumbnail"
             app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="UnusedAttribute"
             tools:text="Savasana" />
 
         <com.google.android.material.button.MaterialButton
@@ -46,7 +48,7 @@
             android:layout_margin="16dp"
             android:paddingHorizontal="8dp"
             android:paddingVertical="0dp"
-            android:text="See details"
+            android:text="@string/see_details"
             android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="12sp"

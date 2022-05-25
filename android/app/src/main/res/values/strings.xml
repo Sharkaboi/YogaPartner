@@ -6,4 +6,7 @@
     <string name="not_confident_message">Please position yourself within the frame and keep the phone 3–6ft away with good lighting conditions.</string>
     <string name="unknown">Unknown</string>
     <string name="back">Back</string>
+    <string name="thumbnail">Thumbnail</string>
+    <string name="you_are_doing">You are doing:</string>
+    <string name="see_details">See details</string>
 </resources>
