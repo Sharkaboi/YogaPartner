@@ -30,10 +30,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.App.Starting">
-        <activity
-            android:name=".test.TestActivity"
-            android:exported="false"
-            android:label="Test" />
 
         <meta-data
             android:name="com.google.android.gms.version"
