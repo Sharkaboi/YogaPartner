@@ -3,6 +3,7 @@ package com.sharkaboi.yogapartner.common.extensions
 import android.content.SharedPreferences
 import androidx.core.content.edit
 
+@Suppress("UNCHECKED_CAST")
 fun <T> SharedPreferences.getOrSetDefault(key: String, value: T): T {
     return when (value) {
         is Float -> {

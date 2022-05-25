@@ -2,19 +2,10 @@ package com.sharkaboi.yogapartner.common.extensions
 
 import android.content.Context
 import android.widget.Toast
-import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.sharkaboi.yogapartner.common.extensions.emptyString
-
-internal fun AppCompatActivity.showToast(message: String?, length: Int = Toast.LENGTH_SHORT) =
-    Toast.makeText(this, message ?: String.emptyString, length).show()
 
 internal fun Fragment.showToast(message: String?, length: Int = Toast.LENGTH_SHORT) =
-    Toast.makeText(context, message ?: String.emptyString, length).show()
-
-internal fun Fragment.showToast(@StringRes id: Int, length: Int = Toast.LENGTH_SHORT) =
-    Toast.makeText(context, id, length).show()
+    Toast.makeText(context, message ?: "", length).show()
 
 internal fun Context.showToast(message: String?, length: Int = Toast.LENGTH_SHORT) =
-    Toast.makeText(this, message ?: String.emptyString, length).show()
+    Toast.makeText(this, message ?: "", length).show()

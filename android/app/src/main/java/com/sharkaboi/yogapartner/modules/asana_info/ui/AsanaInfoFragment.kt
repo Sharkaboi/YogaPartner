@@ -12,7 +12,6 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import coil.load
-import com.sharkaboi.yogapartner.common.extensions.capitalizeFirst
 import com.sharkaboi.yogapartner.data.models.AsanaDifficulty
 import com.sharkaboi.yogapartner.databinding.FragmentAsanaInfoBinding
 
@@ -52,7 +51,7 @@ class AsanaInfoFragment : Fragment() {
 
     private fun setDifficultySpan() {
         val prefix = "Difficulty : "
-        val difficultyText = "$prefix${args.asana.difficulty.name.capitalizeFirst()}"
+        val difficultyText = "$prefix${args.asana.difficulty.name}"
         val spannableString = SpannableString(difficultyText)
         val whiteSpan = ForegroundColorSpan(Color.WHITE)
         val greenSpan = ForegroundColorSpan(Color.GREEN)

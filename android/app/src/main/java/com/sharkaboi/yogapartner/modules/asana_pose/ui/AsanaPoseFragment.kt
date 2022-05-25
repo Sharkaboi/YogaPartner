@@ -15,7 +15,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.sharkaboi.yogapartner.R
-import com.sharkaboi.yogapartner.common.extensions.capitalizeFirst
 import com.sharkaboi.yogapartner.common.extensions.observe
 import com.sharkaboi.yogapartner.common.extensions.showToast
 import com.sharkaboi.yogapartner.databinding.FragmentAsanaPoseBinding
@@ -277,7 +276,7 @@ class AsanaPoseFragment : Fragment() {
             if (detectorOptions.shouldShowConfidence()) {
                 append("${result.confidence.toInt()}% - ")
             }
-            append(result.asanaClass.getFormattedString().capitalizeFirst())
+            append(result.asanaClass.getFormattedString())
         }
         binding.tvInference.text = string
 
