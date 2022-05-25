@@ -83,13 +83,6 @@ class LatencyLogger {
         Timber.d("Detector took " + SystemClock.elapsedRealtime().minus(detectorStart) + "ms")
     }
 
-    fun logSampleLoadTime(sampleLoadStart: Long) {
-        Timber.d(
-            "Time to load samples from csv " + SystemClock.elapsedRealtime()
-                .minus(sampleLoadStart) + "ms"
-        )
-    }
-
     fun logClassifierTime(classifierStart: Long) {
         if (!shouldShowForEachClassification) {
             return

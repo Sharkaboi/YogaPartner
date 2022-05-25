@@ -16,21 +16,15 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseDetector
-import com.sharkaboi.yogapartner.R
 import com.sharkaboi.yogapartner.common.extensions.showToast
 import com.sharkaboi.yogapartner.ml.classification.IAsanaClassifier
-import com.sharkaboi.yogapartner.ml.classification.KNNAsanaClassifier
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
 import com.sharkaboi.yogapartner.ml.log.LatencyLogger
 import com.sharkaboi.yogapartner.ml.models.Classification
 import com.sharkaboi.yogapartner.ml.models.PoseWithAsanaClassification
-import com.sharkaboi.yogapartner.ml.models.TrainedPoseSample
-import com.sharkaboi.yogapartner.ml.models.TrainedPoseSample.Companion.getPoseSample
 import com.sharkaboi.yogapartner.ml.utils.CancellableExecutor
 import com.sharkaboi.yogapartner.modules.asana_pose.ui.custom.LandMarksOverlay
 import timber.log.Timber
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import java.util.concurrent.Executors
 
 class AsanaProcessor(
@@ -38,8 +32,6 @@ class AsanaProcessor(
     private val latencyLogger: LatencyLogger,
     private val detectorOptions: DetectorOptions
 ) {
-    private var poseSamples: List<TrainedPoseSample>? = null
-
     // Whether this processor is already shut down
     private var isShutdown = false
 
@@ -87,11 +79,8 @@ class AsanaProcessor(
             )
         }
 
-        // When the image is from CameraX analysis use case, must call image.close() on received
-        // images when finished using them. Otherwise, new images may not be received or the camera
-        // may stall.
-        // Currently MlImage doesn't support ImageProxy directly, so we still need to call
-        // ImageProxy.close() here.
+        // Must call image.close() on images when finished using them.
+        // Otherwise, new images may not be received or the camera may stall.
         task.addOnCompleteListener { image.close() }
     }
 
@@ -167,14 +156,7 @@ class AsanaProcessor(
     private fun loadClassifier(isLoading: (Boolean) -> Unit) {
         isLoading(true)
         classifier?.close()
-        var classifier = detectorOptions.getClassifier(poseSamples)
-        if (classifier is KNNAsanaClassifier && poseSamples == null) {
-            val sampleLoadStart = SystemClock.elapsedRealtime()
-            loadPoseSamplesFromDisk()
-            latencyLogger.logSampleLoadTime(sampleLoadStart)
-            classifier = detectorOptions.getClassifier(poseSamples)
-        }
-        this.classifier = classifier
+        this.classifier = detectorOptions.getClassifier()
         isLoading(false)
     }
 
@@ -187,26 +169,5 @@ class AsanaProcessor(
         val confidence = (classification.getClassConfidence(maxConfidenceClass)
                 / classifier!!.confidenceRange())
         return Classification(maxConfidenceClass, confidence)
-    }
-
-    private fun loadPoseSamplesFromDisk() {
-        val trainedPoseSamples: MutableList<TrainedPoseSample> = ArrayList()
-        try {
-            val reader = BufferedReader(
-                InputStreamReader(context.resources.openRawResource(R.raw.landmarks_107_classes))
-            )
-            var csvLine = reader.readLine()
-            while (csvLine != null) {
-                // If line is not a valid {@link PoseSample}, we'll get null and skip adding to the list.
-                val trainedPoseSample = getPoseSample(csvLine, ",")
-                if (trainedPoseSample != null) {
-                    trainedPoseSamples.add(trainedPoseSample)
-                }
-                csvLine = reader.readLine()
-            }
-        } catch (e: Exception) {
-            Timber.d("Error when loading pose samples.\n$e")
-        }
-        this.poseSamples = trainedPoseSamples
     }
 }

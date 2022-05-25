@@ -34,9 +34,4 @@
         app:icon="@drawable/ic_confidence"
         app:key="shouldShowConfidence"
         app:title="Show confidence" />
-
-    <SwitchPreferenceCompat
-        app:icon="@drawable/ic_knn"
-        app:key="useKnn"
-        app:title="Use KNN classifier" />
 </PreferenceScreen>

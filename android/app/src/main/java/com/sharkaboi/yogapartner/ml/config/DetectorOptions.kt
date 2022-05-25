@@ -8,9 +8,7 @@ import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
 import com.sharkaboi.yogapartner.common.extensions.getOrSetDefault
 import com.sharkaboi.yogapartner.ml.ConvertedModel
 import com.sharkaboi.yogapartner.ml.classification.IAsanaClassifier
-import com.sharkaboi.yogapartner.ml.classification.KNNAsanaClassifier
 import com.sharkaboi.yogapartner.ml.classification.TFLiteAsanaClassifier
-import com.sharkaboi.yogapartner.ml.models.TrainedPoseSample
 import com.sharkaboi.yogapartner.ml.utils.PoseEmbeddingUtils
 
 class DetectorOptions(
@@ -24,7 +22,6 @@ class DetectorOptions(
         sharedPrefs.getOrSetDefault("preferGpu", true)
         sharedPrefs.getOrSetDefault("useAccurate", true)
         sharedPrefs.getOrSetDefault("shouldShowConfidence", false)
-        sharedPrefs.getOrSetDefault("useKnn", false)
     }
 
     private val tfLiteModel get() = ConvertedModel.newInstance(context)
@@ -66,9 +63,8 @@ class DetectorOptions(
         return sharedPrefs.getBoolean("isMlImage", true)
     }
 
-    fun getClassifier(poseSamples: List<TrainedPoseSample>?): IAsanaClassifier {
-        val useKnn = sharedPrefs.getBoolean("useKnn", false)
-        return if (useKnn) KNNAsanaClassifier(poseSamples) else TFLiteAsanaClassifier(tfLiteModel)
+    fun getClassifier(): IAsanaClassifier {
+        return TFLiteAsanaClassifier(tfLiteModel)
     }
 
     fun shouldShowConfidence(): Boolean {
