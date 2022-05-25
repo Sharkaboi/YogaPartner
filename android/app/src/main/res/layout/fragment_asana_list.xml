@@ -31,6 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_margin="8dp"
+            android:contentDescription="@string/settings"
             app:srcCompat="@drawable/ic_setting"
             app:tint="@null" />
     </com.google.android.material.appbar.MaterialToolbar>
@@ -42,7 +43,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="24dp"
         android:layout_marginVertical="16dp"
-        android:hint="Search asana"
+        android:hint="@string/search_asana"
         app:boxBackgroundColor="@color/white"
         app:boxCornerRadiusBottomEnd="24dp"
         app:boxCornerRadiusBottomStart="24dp"
@@ -74,13 +75,14 @@
         android:layout_marginHorizontal="24dp"
         android:layout_marginVertical="16dp"
         android:fontFamily="@font/maven_pro_bold"
-        android:text="All asanas"
+        android:text="@string/all_asanas"
         android:textFontWeight="700"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etSearchLayout" />
+        app:layout_constraintTop_toBottomOf="@id/etSearchLayout"
+        tools:ignore="UnusedAttribute" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvAsanas"
@@ -114,7 +116,7 @@
         android:id="@+id/tvEmptyHint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="No results found"
+        android:text="@string/no_results_found"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
