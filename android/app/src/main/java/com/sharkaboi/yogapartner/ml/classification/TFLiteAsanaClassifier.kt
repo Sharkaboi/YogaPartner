@@ -27,16 +27,16 @@ class TFLiteAsanaClassifier(private val model: ModelV2) : IAsanaClassifier {
         val output = outputs.outputFeature0AsTensorBuffer
         // Maintain same order as [labels_list] used while training
         val classes = listOf(
+            AsanaClass.adho_mukha_svanasana,
             AsanaClass.bhujangasana,
             AsanaClass.bidalasana,
-            AsanaClass.virabhadrasana_ii,
-            AsanaClass.virabhadrasana_i,
-            AsanaClass.vrikshasana,
             AsanaClass.phalakasana,
             AsanaClass.ustrasana,
             AsanaClass.utkatasana,
             AsanaClass.utkata_konasana,
-            AsanaClass.adho_mukha_svanasana
+            AsanaClass.virabhadrasana_i,
+            AsanaClass.virabhadrasana_ii,
+            AsanaClass.vrikshasana
         )
         output.floatArray.forEachIndexed { index: Int, fl: Float ->
             classificationResult.putClassConfidence(classes[index], fl)
