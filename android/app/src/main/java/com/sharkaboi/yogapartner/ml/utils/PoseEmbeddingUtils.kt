@@ -4,11 +4,8 @@ import com.google.mlkit.vision.common.PointF3D
 import com.google.mlkit.vision.pose.PoseLandmark
 import com.sharkaboi.yogapartner.ml.config.DetectorOptions
 
-/**
- * Generates embedding for given list of Pose landmarks.
- */
 object PoseEmbeddingUtils {
-    private val TORSO_MULTIPLIER = DetectorOptions.TORSO_MULTIPLIER
+    private const val TORSO_MULTIPLIER = DetectorOptions.TORSO_MULTIPLIER
 
     @JvmStatic
     fun getPoseEmbedding(landmarks: List<PointF3D>): List<PointF3D> {
@@ -65,7 +62,10 @@ object PoseEmbeddingUtils {
         // One joint. - (9)
         embedding.add(
             PointF3DUtils.subtract(
-                PointF3DUtils.average(lm[PoseLandmark.LEFT_HIP], lm[PoseLandmark.RIGHT_HIP]),
+                PointF3DUtils.average(
+                    lm[PoseLandmark.LEFT_HIP],
+                    lm[PoseLandmark.RIGHT_HIP]
+                ),
                 PointF3DUtils.average(
                     lm[PoseLandmark.LEFT_SHOULDER],
                     lm[PoseLandmark.RIGHT_SHOULDER]
@@ -74,12 +74,14 @@ object PoseEmbeddingUtils {
         )
         embedding.add(
             PointF3DUtils.subtract(
-                lm[PoseLandmark.LEFT_SHOULDER], lm[PoseLandmark.LEFT_ELBOW]
+                lm[PoseLandmark.LEFT_SHOULDER],
+                lm[PoseLandmark.LEFT_ELBOW]
             )
         )
         embedding.add(
             PointF3DUtils.subtract(
-                lm[PoseLandmark.RIGHT_SHOULDER], lm[PoseLandmark.RIGHT_ELBOW]
+                lm[PoseLandmark.RIGHT_SHOULDER],
+                lm[PoseLandmark.RIGHT_ELBOW]
             )
         )
         embedding.add(
@@ -94,7 +96,12 @@ object PoseEmbeddingUtils {
                 lm[PoseLandmark.RIGHT_WRIST]
             )
         )
-        embedding.add(PointF3DUtils.subtract(lm[PoseLandmark.LEFT_HIP], lm[PoseLandmark.LEFT_KNEE]))
+        embedding.add(
+            PointF3DUtils.subtract(
+                lm[PoseLandmark.LEFT_HIP],
+                lm[PoseLandmark.LEFT_KNEE]
+            )
+        )
         embedding.add(
             PointF3DUtils.subtract(
                 lm[PoseLandmark.RIGHT_HIP],
@@ -117,12 +124,14 @@ object PoseEmbeddingUtils {
         // Two joints. (4)
         embedding.add(
             PointF3DUtils.subtract(
-                lm[PoseLandmark.LEFT_SHOULDER], lm[PoseLandmark.LEFT_WRIST]
+                lm[PoseLandmark.LEFT_SHOULDER],
+                lm[PoseLandmark.LEFT_WRIST]
             )
         )
         embedding.add(
             PointF3DUtils.subtract(
-                lm[PoseLandmark.RIGHT_SHOULDER], lm[PoseLandmark.RIGHT_WRIST]
+                lm[PoseLandmark.RIGHT_SHOULDER],
+                lm[PoseLandmark.RIGHT_WRIST]
             )
         )
         embedding.add(
@@ -155,12 +164,14 @@ object PoseEmbeddingUtils {
         // Five joints. (4)
         embedding.add(
             PointF3DUtils.subtract(
-                lm[PoseLandmark.LEFT_SHOULDER], lm[PoseLandmark.LEFT_ANKLE]
+                lm[PoseLandmark.LEFT_SHOULDER],
+                lm[PoseLandmark.LEFT_ANKLE]
             )
         )
         embedding.add(
             PointF3DUtils.subtract(
-                lm[PoseLandmark.RIGHT_SHOULDER], lm[PoseLandmark.RIGHT_ANKLE]
+                lm[PoseLandmark.RIGHT_SHOULDER],
+                lm[PoseLandmark.RIGHT_ANKLE]
             )
         )
         embedding.add(
