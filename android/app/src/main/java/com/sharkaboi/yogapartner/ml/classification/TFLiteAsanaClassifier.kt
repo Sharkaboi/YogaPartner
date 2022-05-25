@@ -1,12 +1,12 @@
 package com.sharkaboi.yogapartner.ml.classification
 
 import com.google.mlkit.vision.pose.Pose
-import com.sharkaboi.yogapartner.ml.ConvertedModel
+import com.sharkaboi.yogapartner.ml.ModelV2
 import com.sharkaboi.yogapartner.ml.utils.PoseEmbeddingUtils
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 
-class TFLiteAsanaClassifier(private val model: ConvertedModel) : IAsanaClassifier {
+class TFLiteAsanaClassifier(private val model: ModelV2) : IAsanaClassifier {
     override fun classify(pose: Pose): ClassificationResult {
         val classificationResult = ClassificationResult()
         if (pose.allPoseLandmarks.isEmpty()) {
