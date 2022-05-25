@@ -11,11 +11,6 @@
         app:title="Show pose outline" />
 
     <SwitchPreferenceCompat
-        app:icon="@drawable/ic_image_type"
-        app:key="isMlImage"
-        app:title="Use MLImage type" />
-
-    <SwitchPreferenceCompat
         app:icon="@drawable/ic_visualize_z"
         app:key="showZ"
         app:title="Visualize Z" />

@@ -16,7 +16,6 @@ class DetectorOptions(
     private val sharedPrefs: SharedPreferences
 ) {
     fun setDefaults() {
-        sharedPrefs.getOrSetDefault("isMlImage", true)
         sharedPrefs.getOrSetDefault("showPose", false)
         sharedPrefs.getOrSetDefault("showZ", true)
         sharedPrefs.getOrSetDefault("preferGpu", true)
@@ -57,10 +56,6 @@ class DetectorOptions(
 
     fun shouldShowOutLine(): Boolean {
         return sharedPrefs.getBoolean("showPose", false)
-    }
-
-    fun isMLImageEnabled(): Boolean {
-        return sharedPrefs.getBoolean("isMlImage", true)
     }
 
     fun getClassifier(): IAsanaClassifier {

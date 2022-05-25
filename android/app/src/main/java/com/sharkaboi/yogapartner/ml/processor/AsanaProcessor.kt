@@ -57,27 +57,15 @@ class AsanaProcessor(
             return
         }
 
-        val task: Task<PoseWithAsanaClassification>
-        if (detectorOptions.isMLImageEnabled()) {
-            val mlImage = MediaMlImageBuilder(image.image!!)
-                .setRotation(image.imageInfo.rotationDegrees)
-                .build()
-            task = setClassificationCallbacks(
-                detectAndClassifyInMLImage(mlImage, isLoading),
-                frameStartMs,
-                landMarksOverlay,
-                onInference
-            )
-        } else {
-            val inputImage =
-                InputImage.fromMediaImage(image.image!!, image.imageInfo.rotationDegrees)
-            task = setClassificationCallbacks(
-                detectAndClassifyInInputImage(inputImage, isLoading),
-                frameStartMs,
-                landMarksOverlay,
-                onInference
-            )
-        }
+        val mlImage = MediaMlImageBuilder(image.image!!)
+            .setRotation(image.imageInfo.rotationDegrees)
+            .build()
+        val task = setClassificationCallbacks(
+            detectAndClassifyInMLImage(mlImage, isLoading),
+            frameStartMs,
+            landMarksOverlay,
+            onInference
+        )
 
         // Must call image.close() on images when finished using them.
         // Otherwise, new images may not be received or the camera may stall.
