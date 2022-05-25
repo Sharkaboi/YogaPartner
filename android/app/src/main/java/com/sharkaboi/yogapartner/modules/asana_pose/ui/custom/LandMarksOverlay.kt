@@ -18,7 +18,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 @AndroidEntryPoint
-@Suppress("UnstableApiUsage")
+@Suppress("UnstableApiUsage", "ReplaceJavaStaticMethodWithKotlinAnalog")
 class LandMarksOverlay(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
 
     @Inject
@@ -60,9 +60,6 @@ class LandMarksOverlay(context: Context?, attrs: AttributeSet?) : View(context, 
         strokeWidth = STROKE_WIDTH
         color = Color.YELLOW
     }
-    private val visualizeZ get() = detectorOptions.getVisualizeZ()
-    private val rescaleZForVisualization
-        get() = detectorOptions.rescaleZForVisualization()
 
     init {
         addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
@@ -119,10 +116,8 @@ class LandMarksOverlay(context: Context?, attrs: AttributeSet?) : View(context, 
         // Draw all the points
         for (landmark in landmarks) {
             drawPoint(canvas, landmark, whitePaint)
-            if (visualizeZ && rescaleZForVisualization) {
-                zMin = min(zMin, landmark.position3D.z)
-                zMax = max(zMax, landmark.position3D.z)
-            }
+            zMin = min(zMin, landmark.position3D.z)
+            zMax = max(zMax, landmark.position3D.z)
         }
 
         val nose = pose.getPoseLandmark(PoseLandmark.NOSE)
@@ -213,7 +208,7 @@ class LandMarksOverlay(context: Context?, attrs: AttributeSet?) : View(context, 
 
         // Gets average z for the current body line
         val avgZInImagePixel = (start.z + end.z) / 2
-        maybeUpdatePaintColor(paint, canvas, avgZInImagePixel)
+        maybeUpdatePaintColor(paint, avgZInImagePixel)
 
         canvas.drawLine(
             translateX(start.x),
@@ -226,7 +221,7 @@ class LandMarksOverlay(context: Context?, attrs: AttributeSet?) : View(context, 
 
     private fun drawPoint(canvas: Canvas, landmark: PoseLandmark, paint: Paint) {
         val point = landmark.position3D
-        maybeUpdatePaintColor(paint, canvas, point.z)
+        maybeUpdatePaintColor(paint, point.z)
         canvas.drawCircle(
             translateX(point.x),
             translateY(point.y),
@@ -253,27 +248,12 @@ class LandMarksOverlay(context: Context?, attrs: AttributeSet?) : View(context, 
 
     private fun maybeUpdatePaintColor(
         paint: Paint,
-        canvas: Canvas,
         zInImagePixel: Float
     ) {
-        if (!visualizeZ) {
-            return
-        }
-
-        // When visualizeZ is true, sets up the paint to different colors based on z values.
+        // Set up the paint to different colors based on z values.
         // Gets the range of z value.
-        val zLowerBoundInScreenPixel: Float
-        val zUpperBoundInScreenPixel: Float
-
-        if (rescaleZForVisualization) {
-            zLowerBoundInScreenPixel = Math.min(-0.001f, scale(zMin))
-            zUpperBoundInScreenPixel = Math.max(0.001f, scale(zMax))
-        } else {
-            // By default, assume the range of z value in screen pixel is [-canvasWidth, canvasWidth].
-            val defaultRangeFactor = 1f
-            zLowerBoundInScreenPixel = -defaultRangeFactor * canvas.width
-            zUpperBoundInScreenPixel = defaultRangeFactor * canvas.width
-        }
+        val zLowerBoundInScreenPixel = Math.min(-0.001f, scale(zMin))
+        val zUpperBoundInScreenPixel = Math.max(0.001f, scale(zMax))
 
         val zInScreenPixel = scale(zInImagePixel)
 

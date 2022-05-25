@@ -17,7 +17,6 @@ class DetectorOptions(
 ) {
     fun setDefaults() {
         sharedPrefs.getOrSetDefault("showPose", false)
-        sharedPrefs.getOrSetDefault("showZ", true)
         sharedPrefs.getOrSetDefault("shouldShowConfidence", false)
     }
 
@@ -29,14 +28,6 @@ class DetectorOptions(
                 .setDetectorMode(PoseDetectorOptions.STREAM_MODE)
         builder.setPreferredHardwareConfigs(PoseDetectorOptions.CPU_GPU)
         return builder.build()
-    }
-
-    fun getVisualizeZ(): Boolean {
-        return sharedPrefs.getBoolean("showZ", true)
-    }
-
-    fun rescaleZForVisualization(): Boolean {
-        return sharedPrefs.getBoolean("showZ", true)
     }
 
     fun shouldShowOutLine(): Boolean {

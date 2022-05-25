@@ -11,11 +11,6 @@
         app:title="Show pose outline" />
 
     <SwitchPreferenceCompat
-        app:icon="@drawable/ic_visualize_z"
-        app:key="showZ"
-        app:title="Visualize Z" />
-
-    <SwitchPreferenceCompat
         app:icon="@drawable/ic_confidence"
         app:key="shouldShowConfidence"
         app:title="Show confidence" />
