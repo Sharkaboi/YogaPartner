@@ -1,6 +1,7 @@
 package com.sharkaboi.yogapartner.data.di
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
@@ -27,6 +28,6 @@ object Module {
 
     @Provides
     @Singleton
-    fun getSharedPrefs(@ApplicationContext context: Context) =
+    fun getSharedPrefs(@ApplicationContext context: Context): SharedPreferences =
         PreferenceManager.getDefaultSharedPreferences(context)
 }
