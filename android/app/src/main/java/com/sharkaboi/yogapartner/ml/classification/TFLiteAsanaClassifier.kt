@@ -25,12 +25,13 @@ class TFLiteAsanaClassifier(private val model: ConvertedModel) : IAsanaClassifie
         inputFeature.loadArray(unzippedList.toFloatArray())
         val outputs = model.process(inputFeature)
         val output = outputs.outputFeature0AsTensorBuffer
+        // Maintain same order as [labels_list] used while training
         val classes = listOf(
             AsanaClass.bhujangasana,
-            AsanaClass.marjaryasana,
+            AsanaClass.bidalasana,
             AsanaClass.virabhadrasana_ii,
             AsanaClass.virabhadrasana_i,
-            AsanaClass.vriksasana,
+            AsanaClass.vrikshasana,
             AsanaClass.phalakasana,
             AsanaClass.ustrasana,
             AsanaClass.utkatasana,
