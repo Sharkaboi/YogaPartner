@@ -4,15 +4,13 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import com.sharkaboi.yogapartner.R
 import com.sharkaboi.yogapartner.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedListener {
+class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
 
@@ -28,15 +26,5 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
     private fun initNav() {
         navController = findNavController(R.id.fragmentContainer)
-        navController.addOnDestinationChangedListener(this)
-    }
-
-    override fun onDestinationChanged(
-        controller: NavController,
-        destination: NavDestination,
-        arguments: Bundle?
-    ) {
-//        Timber.d("onDestinationChanged " + destination.displayName)
-//        Timber.d("" + navController.backQueue.map { it.destination.displayName })
     }
 }

@@ -34,7 +34,6 @@ import javax.inject.Inject
 @ExperimentalGetImage
 @AndroidEntryPoint
 class AsanaPoseFragment : Fragment() {
-
     @Inject
     lateinit var detectorOptions: DetectorOptions
 
@@ -129,12 +128,10 @@ class AsanaPoseFragment : Fragment() {
                 lensFacing = newLensFacing
                 cameraSelector = newCameraSelector
                 bindAllCameraUseCases()
-                // TODO: 12-05-2022 restart detector and not use tracker
                 binding.progress.isVisible = false
                 return
             }
         } catch (e: Exception) {
-            // Falls through
         }
         showToast(
             "This device does not have lens with facing: $newLensFacing"
@@ -144,7 +141,6 @@ class AsanaPoseFragment : Fragment() {
 
     private fun bindAllCameraUseCases() {
         if (cameraProvider != null) {
-            // As required by CameraX API, unbinds all use cases before trying to re-bind any of them.
             cameraProvider!!.unbindAll()
             setCameraPreviewToSurfaceView()
             bindAnalysisUseCase()
@@ -185,9 +181,7 @@ class AsanaPoseFragment : Fragment() {
             asanaProcessor = AsanaProcessor(detectorOptions)
         } catch (e: Exception) {
             Timber.d("Can not create image processor", e)
-            showToast(
-                "Can not create image processor: " + e.localizedMessage,
-            )
+            showToast("Can not create image processor: " + e.localizedMessage)
             FirebaseCrashlytics.getInstance().recordException(e)
             return
         }

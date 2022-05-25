@@ -7,7 +7,6 @@ import android.graphics.Matrix
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
-import com.google.common.base.Preconditions
 import com.google.common.primitives.Ints
 import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseLandmark
@@ -87,8 +86,8 @@ class LandMarksOverlay(context: Context?, attrs: AttributeSet?) : View(context, 
      * front camera.
      */
     fun setImageSourceInfo(imageWidth: Int, imageHeight: Int, isFlipped: Boolean) {
-        Preconditions.checkState(imageWidth > 0, "image width must be positive")
-        Preconditions.checkState(imageHeight > 0, "image height must be positive")
+        assert(imageWidth > 0) { "image width must be positive" }
+        assert(imageHeight > 0) { "image height must be positive" }
         synchronized(lock) {
             this.imageWidth = imageWidth
             this.imageHeight = imageHeight
